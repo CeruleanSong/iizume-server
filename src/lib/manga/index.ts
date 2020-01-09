@@ -9,10 +9,8 @@
 
 import * as Chapter from "./Chapter";
 import * as Manga from "./Manga";
-import * as Page from "./Page";
 
 export {
-	Page,
 	Chapter,
 	Manga,
 };
