@@ -17,7 +17,7 @@ interface Scraper {
 	nsfw: boolean;
 
 	operations: {
-		manga: (preview: Preview) => Promise<Manga>;
+		manga: (uri: string) => Promise<Manga>;
 		chapter: (uri: string) => Promise<Chapter>;
 
 		hot: (page?: number) => Promise<Preview[]>;
