@@ -1,7 +1,9 @@
 import Authentication from "./Authentication";
-import User from "./user/";
+import MangaController from "./manga/MangaController";
+import UserController from "./user/UserController";
 
 export default {
-	User,
+	MangaController,
+	UserController,
 	Authentication,
 };

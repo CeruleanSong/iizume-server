@@ -74,7 +74,9 @@ app.use(cors({
  * routes
  *****************************/
 
-router.use("/api/user", Authenticate, Cookies, Api.User.UserController.routes());
+router.use("/api/user", Authenticate, Cookies, Api.UserController.routes());
+router.use("/api/manga", Cookies, Api.MangaController.routes());
+// router.use("/api/manga", Authenticate, Cookies, Api.MangaController.routes());
 router.use("/api/auth", Cookies, Api.Authentication.routes());
 
 app.use(router.routes());
