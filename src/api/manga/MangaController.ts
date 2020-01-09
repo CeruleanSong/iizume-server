@@ -16,12 +16,12 @@ const router: Router = new Router();
 
 const errInvalidSource = 'Source is invalid';
 
-router.post("/list", async (ctx: ParameterizedContext) => {
+router.all("/list", async (ctx: ParameterizedContext) => {
 	ctx.body = Scrapers;
 	console.log(ctx.body);
 });
 
-router.post("/latest", async (ctx: ParameterizedContext) => {
+router.all("/latest", async (ctx: ParameterizedContext) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
@@ -30,33 +30,32 @@ router.post("/latest", async (ctx: ParameterizedContext) => {
 	ctx.toJSON();
 });
 
-router.post("/manga", async (ctx: any) => {
+router.all("/manga", async (ctx: any) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
-	const list = await Scrapers[req.source].operations.latest(req.page);
-	ctx.body = await Scrapers[req.source].operations.manga(list[0].uri);
+	ctx.body = await Scrapers[req.source].operations.manga(req.url);
 	ctx.toJSON();
 });
 
-router.post("/chapter", async (ctx: any) => {
+router.all("/chapter", async (ctx: any) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
-	const list = await Scrapers[req.source].operations.latest();
-	const chapter = await Scrapers[req.source].operations.manga(list[0].uri);
-	ctx.body = await Scrapers[req.source].operations.chapter(chapter.chapters[0].uri);
+	const chapter = await Scrapers[req.source].operations.chapter(req.url);
+	ctx.body = chapter;
 	ctx.toJSON();
 });
 
-router.post("/hot", async (ctx: any) => {
-	const user: string = ctx.request.authToken.email;
+router.all("/hot", async (ctx: any) => {
+	const req = ctx.request.body ? ctx.request.body : null;
 
-	await Models.User.find({ email: user }, { _id: 0, password: 0, created: 0 }).then((res: any[]) => {
-		ctx.body = res;
-	});
+	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
+
+	ctx.body = await Scrapers[req.source].operations.hot(req.page);
+	ctx.toJSON();
 });
 
 const MangaController: Router = router;

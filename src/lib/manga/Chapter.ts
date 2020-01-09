@@ -17,7 +17,6 @@ interface Chapter {
 	images: string[] | null;
 
 	title: string | null;
-	scanlator: string | null;
 	uploadDate: Date | null;
 }
 
@@ -29,18 +28,17 @@ interface ChapterDeconstruction {
 
 /**
  * @param {number} num Chapter number in the series
- * @param {string} uri Location of the chapter
+ * @param {string} url Location of the chapter
  * @param {string[]} images Array of images in chapter
  *
  */
-const createChapter = (num: number, uri: string, images: string[],
-	{ title, scanlator, uploadDate }: ChapterDeconstruction) => {
+const createChapter = (num: number, url: string, images: string[],
+	{ title, uploadDate }: ChapterDeconstruction) => {
 	const chapter: Chapter = {
 		num,
-		url: uri,
+		url,
 		images: images ? images : null,
 		title: title ? title : null,
-		scanlator: scanlator ? scanlator : null,
 		uploadDate: uploadDate ? uploadDate : null,
 	};
 

@@ -9,7 +9,9 @@
 
 import fetch from 'node-fetch';
 import { parse } from 'node-html-parser';
+import puppeteer from 'puppeteer';
 import qs from 'qs';
+import { createChapter } from '../../../../lib/manga/Chapter';
 import { createManga, Manga } from '../../../../lib/manga/Manga';
 import { createPreview, Preview } from "../../../../lib/manga/Preview";
 import Scraper from "../Scraper";
@@ -94,14 +96,49 @@ const search = async () => {
 	return null;
 };
 
-const chapter = async () => {
-	return null;
+const chapter = async (url: string) => {
+	const browser = await puppeteer.launch();
+	const page = await browser.newPage();
+	await page.goto(url);
+
+	const dom = await page.evaluate(() => document.body.innerHTML);
+	const pageHtml: any = parse(dom);
+	const chapterInfo = pageHtml.querySelectorAll('select.PageSelect')[0].childNodes;
+	await browser.close();
+
+	const regex = /(.*\/)([0-9]*)-([0-9]*)(\.png|\.jpg|\.jpeg)$/gm;
+
+	const pageList: any[] = [];
+
+	const imageTag = pageHtml.querySelector('img.CurImage').attributes.src;
+
+	let i = 1;
+	while(i <= chapterInfo.length) {
+
+		switch (i.toString().length) {
+			case 1:
+				pageList.push(imageTag.replace(regex, '$1$2-00' + i + '$4'));
+				break;
+			case 2:
+				pageList.push(imageTag.replace(regex, '$1$2-0' + i + '$4'));
+				break;
+			case 3:
+				pageList.push(imageTag.replace(regex, '$1$2-' + i + '$4'));
+				break;
+		}
+
+		i++;
+	}
+
+	const ch = createChapter(+imageTag.replace(regex, '$2'), url, pageList, {});
+
+	return ch;
 };
 
-const manga = async (uri: string) => {
+const manga = async (url: string) => {
 	let ma: Manga = null;
 
-	await fetch(uri, {
+	await fetch(url, {
 		method: 'post',
 	}).then(async (res) => {
 		const data = await res.text();
@@ -165,7 +202,7 @@ const manga = async (uri: string) => {
 			chapterObjectList.push({ title, url: scraper.root + tag.attributes.href });
 		}
 
-		ma = createManga(mangaTitle, uri, mangaImg, chapterObjectList, { description, tags: genreList , author: authorList.toString(), artist: authorList.toString(), publicationStatus: status, rating: null });
+		ma = createManga(mangaTitle, url, mangaImg, chapterObjectList, { description, tags: genreList , author: authorList.toString(), artist: authorList.toString(), publicationStatus: status, rating: null });
 	});
 
 	return ma;

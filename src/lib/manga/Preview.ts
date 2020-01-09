@@ -13,7 +13,7 @@ interface Preview {
 	/** uri of image preview */
 	img: string;
 	/** page where the reader exists */
-	uri: string;
+	url: string;
 	/** source preview was grabbed from */
 	source: string;
 	/** id from source if provided */
@@ -24,11 +24,11 @@ interface Preview {
  * @param {string} title Page number of chapter
  * @param {string} uri Uri of image
  */
-const createPreview = (title: string, img: string, uri: string, source: string, id?: string) => {
+const createPreview = (title: string, img: string, url: string, source: string, id?: string) => {
 	const preview: Preview = {
 		title,
 		img,
-		uri,
+		url,
 		source,
 		id: id ? id : null,
 	};
