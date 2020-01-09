@@ -26,7 +26,7 @@ router.post("/latest", async (ctx: ParameterizedContext) => {
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
-	ctx.body = await Scrapers[req.source].latest();
+	ctx.body = await Scrapers[req.source].operations.latest();
 	ctx.toJSON();
 });
 
@@ -35,8 +35,8 @@ router.post("/manga", async (ctx: any) => {
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
-	const list = await Scrapers[req.source].latest();
-	ctx.body = await Scrapers[req.source].manga(list[0]);
+	const list = await Scrapers[req.source].operations.latest();
+	ctx.body = await Scrapers[req.source].operations.manga(list[0]);
 	ctx.toJSON();
 });
 
@@ -45,9 +45,9 @@ router.post("/chapter", async (ctx: any) => {
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
-	const list = await Scrapers[req.source].latest();
-	const chapter = await Scrapers[req.source].manga(list[0]);
-	ctx.body = await Scrapers[req.source].chapter(chapter.chapters[0]);
+	const list = await Scrapers[req.source].operations.latest();
+	const chapter = await Scrapers[req.source].operations.manga(list[0]);
+	ctx.body = await Scrapers[req.source].operations.chapter(chapter.chapters[0]);
 	ctx.toJSON();
 });
 
