@@ -4,7 +4,7 @@
  * Notes:
  * - N/A
  * @author Elias Mawa <elias@emawa.io>
- * Created by Elias Mawa on 19-22-12
+ * Created by Elias Mawa on 20-01-08
  */
 
 import { ParameterizedContext } from "koa";
@@ -47,7 +47,7 @@ router.post("/chapter", async (ctx: any) => {
 
 	const list = await Scrapers[req.source].latest();
 	const chapter = await Scrapers[req.source].manga(list[0]);
-	ctx.body = await Scrapers[req.source].chapter(chapter.chapters[0].url);
+	ctx.body = await Scrapers[req.source].chapter(chapter.chapters[0]);
 	ctx.toJSON();
 });
 

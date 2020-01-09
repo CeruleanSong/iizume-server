@@ -8,7 +8,7 @@
  */
 
 import { Chapter } from "src/lib/manga/Chapter";
-import { Manga } from "src/lib/manga/Manga";
+import { ChapterProp, Manga } from "src/lib/manga/Manga";
 import { Preview } from "src/lib/manga/Preview";
 
 interface Scraper {
@@ -16,11 +16,14 @@ interface Scraper {
 	root: string;
 	nsfw: boolean;
 
-	manga: (preview: Preview) => Promise<Manga>;
-	chapter: (url: string) => Promise<Chapter>;
-	hot: (page?: number) => Preview[];
-	latest: (page?: number) => Promise<Preview[]>;
-	search: (name: string) => Preview[];
+	operations: {
+		manga: (preview: Preview) => Promise<Manga>;
+		chapter: (chapter: ChapterProp) => Promise<Chapter>;
+
+		hot: (page?: number) => Promise<Preview[]>;
+		latest: (page?: number) => Promise<Preview[]>;
+		search: (name: string) => Promise<Preview[]>;
+	};
 }
 
 export default Scraper;

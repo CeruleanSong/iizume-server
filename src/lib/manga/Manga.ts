@@ -13,7 +13,7 @@ interface Manga {
 	title: string;
 	uri: string;
 	img: string;
-	chapters: string[];
+	chapters: ChapterProp[];
 
 	artist: string | null;
 	author: string | null;
@@ -22,6 +22,11 @@ interface Manga {
 	description: string | null;
 	id: string | null;
 	tags: string[] | null;
+}
+
+interface ChapterProp {
+	uri: string;
+	title: string;
 }
 
 interface MangaDeconstruction {
@@ -40,7 +45,7 @@ interface MangaDeconstruction {
  * @param {string} img Location of the manga thumbnail
  * @param {string[]} chapters Location of all chapters
  */
-const createManga = (title: string, uri: string, img: string, chapters: string[],
+const createManga = (title: string, uri: string, img: string, chapters: ChapterProp[],
 	{ description, artist, author, publicationStatus, rating, id, tags }: MangaDeconstruction) => {
 	const manga: Manga = {
 		title,
@@ -60,5 +65,6 @@ const createManga = (title: string, uri: string, img: string, chapters: string[]
 
 export {
 	Manga,
+	ChapterProp,
 	createManga,
 };
