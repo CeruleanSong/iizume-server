@@ -47,7 +47,7 @@ router.post("/chapter", async (ctx: any) => {
 
 	const list = await Scrapers[req.source].operations.latest();
 	const chapter = await Scrapers[req.source].operations.manga(list[0]);
-	ctx.body = await Scrapers[req.source].operations.chapter(chapter.chapters[0]);
+	ctx.body = await Scrapers[req.source].operations.chapter(chapter.chapters[0].uri);
 	ctx.toJSON();
 });
 

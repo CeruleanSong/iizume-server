@@ -18,7 +18,7 @@ interface Scraper {
 
 	operations: {
 		manga: (preview: Preview) => Promise<Manga>;
-		chapter: (chapter: ChapterProp) => Promise<Chapter>;
+		chapter: (uri: string) => Promise<Chapter>;
 
 		hot: (page?: number) => Promise<Preview[]>;
 		latest: (page?: number) => Promise<Preview[]>;

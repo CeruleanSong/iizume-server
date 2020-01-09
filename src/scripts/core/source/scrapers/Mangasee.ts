@@ -29,7 +29,7 @@ const search = async (query: string) => {
 	return null;
 };
 
-const chapter = async (ch: ChapterProp) => {
+const chapter = async (uri: string) => {
 	return null;
 };
 
