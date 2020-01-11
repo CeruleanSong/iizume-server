@@ -9,14 +9,14 @@
 
 import { ParameterizedContext } from "koa";
 import Router from 'koa-router';
-import Scrapers from "../../scripts/core/source/Scrapers";
+import Scrapers, { exists } from "../../scripts/core/source/Scrapers";
 import { Models } from '../../server';
 
 const router: Router = new Router();
 
 const errInvalidSource = 'Source is invalid';
 
-router.all("/list", async (ctx: ParameterizedContext) => {
+router.all("/scrapers", async (ctx: ParameterizedContext) => {
 	ctx.body = Scrapers;
 	console.log(ctx.body);
 });
@@ -33,18 +33,22 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 router.all("/manga", async (ctx: any) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
-	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
+	const source = exists(req.url);
 
-	ctx.body = await Scrapers[req.source].operations.manga(req.url);
+	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
+
+	ctx.body = await Scrapers[source].operations.manga(req.url);
 	ctx.toJSON();
 });
 
 router.all("/chapter", async (ctx: any) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
-	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
+	const source = exists(req.url);
 
-	const chapter = await Scrapers[req.source].operations.chapter(req.url);
+	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
+
+	const chapter = await Scrapers[source].operations.chapter(req.url);
 	ctx.body = chapter;
 	ctx.toJSON();
 });
@@ -52,9 +56,11 @@ router.all("/chapter", async (ctx: any) => {
 router.all("/hot", async (ctx: any) => {
 	const req = ctx.request.body ? ctx.request.body : null;
 
-	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
+	const source = exists(req.url);
 
-	ctx.body = await Scrapers[req.source].operations.hot(req.page);
+	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
+
+	ctx.body = await Scrapers[source].operations.hot(req.page);
 	ctx.toJSON();
 });
 

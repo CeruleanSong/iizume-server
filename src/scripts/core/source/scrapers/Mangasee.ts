@@ -19,7 +19,7 @@ import Scraper from "../Scraper";
 const latest = async (page: number = 1) => {const req = { page };
 	const previewList: Preview[] = [];
 
-	await fetch(scraper.root + '/home/latest.request.php', {
+	await fetch("https://" + scraper.root + '/home/latest.request.php', {
 		method: 'post',
 		body: qs.stringify(req),
 		headers: {
@@ -210,7 +210,7 @@ const manga = async (url: string) => {
 
 const scraper: Scraper = {
 	name: 'mangasee',
-	root: "https://mangaseeonline.us",
+	root: "mangaseeonline.us",
 	nsfw: false,
 	operations: {
 		hot,
