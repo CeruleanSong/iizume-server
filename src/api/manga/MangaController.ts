@@ -16,7 +16,7 @@ const router: Router = new Router();
 
 const errInvalidSource = 'Source is invalid';
 
-router.all("/scrapers", async (ctx: ParameterizedContext) => {
+router.all("/sites", async (ctx: ParameterizedContext) => {
 	ctx.body = Scrapers;
 });
 
