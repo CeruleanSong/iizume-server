@@ -1,15 +1,15 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
-		"module": "CommonJS",
+		"target": "es2018",
+		"module": "commonjs",
 		"moduleResolution": "node",
 		"lib": [
 			"dom",
 			"dom.iterable",
-			"esnext"
-		],
-		"allowJs": true,
-		"outDir": "./dist",
+		],     
+		"allowJs": true, 
+		"checkJs": true,
+		"outDir": "./dist/",
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": false,
@@ -21,8 +21,8 @@
 		"isolatedModules": false,
 		"baseUrl": ".",
 	},
-	"exclude": ["node_modules", "babel.config.js", "metro.config.js"],
+	"exclude": ["node_modules/", "babel.config.js", "metro.config.js"],
     "include": [
-        "./src/**/*"
+        "src/**/*"
     ]
 }
