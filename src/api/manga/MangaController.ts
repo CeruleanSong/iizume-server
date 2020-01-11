@@ -18,11 +18,13 @@ const errInvalidSource = 'Source is invalid';
 
 router.all("/scrapers", async (ctx: ParameterizedContext) => {
 	ctx.body = Scrapers;
-	console.log(ctx.body);
 });
 
 router.all("/latest", async (ctx: ParameterizedContext) => {
-	const req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body ? ctx.request.body : null;
+	if(req) {
+		req = ctx.request.query;
+	}
 
 	if(!req.source || !Scrapers[req.source]) { ctx.throw(401, errInvalidSource); }
 
@@ -31,7 +33,10 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 });
 
 router.all("/manga", async (ctx: any) => {
-	const req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body ? ctx.request.body : null;
+	if(req) {
+		req = ctx.request.query;
+	}
 
 	const source = exists(req.url);
 
@@ -42,7 +47,10 @@ router.all("/manga", async (ctx: any) => {
 });
 
 router.all("/chapter", async (ctx: any) => {
-	const req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body ? ctx.request.body : null;
+	if(req) {
+		req = ctx.request.query;
+	}
 
 	const source = exists(req.url);
 
@@ -54,7 +62,10 @@ router.all("/chapter", async (ctx: any) => {
 });
 
 router.all("/hot", async (ctx: any) => {
-	const req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body ? ctx.request.body : null;
+	if(req) {
+		req = ctx.request.query;
+	}
 
 	const source = exists(req.url);
 
