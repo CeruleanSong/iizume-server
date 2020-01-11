@@ -16,7 +16,7 @@ const Scrapers: Scraper[] = Object();
 fs.readdir(path.join(__dirname, "./scrapers/"), (folderErr, modules) => {
 	modules.forEach((module) => {
 		const item: Scraper = require(path.join(__dirname, `./scrapers/${module}`)).default;
-		Scrapers[item.name] = item;
+		// Scrapers[item.name] = item;
 		Scrapers[item.root] = item;
 	});
 });

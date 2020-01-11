@@ -14,6 +14,7 @@ import { Preview } from "src/lib/manga/Preview";
 interface Scraper {
 	name: string;
 	root: string;
+	favicon: string;
 	nsfw: boolean;
 
 	operations: {

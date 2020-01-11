@@ -242,8 +242,9 @@ const manga = async (url: string) => {
 };
 
 const scraper: Scraper = {
-	name: 'mangasee',
-	root: "mangaseeonline.us",
+	name: 'MangaSee',
+	root: 'mangaseeonline.us',
+	favicon: 'https://mangaseeonline.us/img/favicon.png',
 	nsfw: false,
 	operations: {
 		search,
