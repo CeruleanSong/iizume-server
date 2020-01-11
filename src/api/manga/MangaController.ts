@@ -32,7 +32,7 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 	ctx.toJSON();
 });
 
-router.all("/manga", async (ctx: any) => {
+router.all("/series", async (ctx: any) => {
 	let req = ctx.request.body ? ctx.request.body : null;
 	if(req) {
 		req = ctx.request.query;
