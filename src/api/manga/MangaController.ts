@@ -21,7 +21,7 @@ router.all("/sites", async (ctx: ParameterizedContext) => {
 });
 
 router.all("/latest", async (ctx: ParameterizedContext) => {
-	let req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body.source ? ctx.request.body : null;
 	if(!req) {
 		req = ctx.request.query;
 	}
@@ -39,41 +39,41 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 });
 
 router.all("/series", async (ctx: any) => {
-	let req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body.source ? ctx.request.body : null;
 	if(!req) {
 		req = ctx.request.query;
 	}
 
-	const source = exists(req.url);
+	const source = exists(req.source);
 
 	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
 
-	ctx.body = await Scrapers[source].operations.manga(req.url);
+	ctx.body = await Scrapers[source].operations.manga(req.source);
 	ctx.toJSON();
 });
 
 router.all("/chapter", async (ctx: any) => {
-	let req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body.source ? ctx.request.body : null;
 	if(!req) {
 		req = ctx.request.query;
 	}
 
-	const source = exists(req.url);
+	const source = exists(req.source);
 
 	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
 
-	const chapter = await Scrapers[source].operations.chapter(req.url);
+	const chapter = await Scrapers[source].operations.chapter(req.source);
 	ctx.body = chapter;
 	ctx.toJSON();
 });
 
 router.all("/hot", async (ctx: any) => {
-	let req = ctx.request.body ? ctx.request.body : null;
+	let req = ctx.request.body.source ? ctx.request.body : null;
 	if(!req) {
 		req = ctx.request.query;
 	}
 
-	const source = exists(req.url);
+	const source = exists(req.source);
 
 	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
 
