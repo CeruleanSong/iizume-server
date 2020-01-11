@@ -58,7 +58,7 @@ const latest = async (page: number = 1) => {const req = { page };
 				}
 				/***** get title *****/
 
-				const url = scraper.root + urlList[i].attributes.href;
+				const url = 'https://' +scraper.root + urlList[i].attributes.href;
 
 				const reg = /(read-online\/)(.*)(-chapter.*[0-9]+)(.html)/gm;
 				const mangaUrl = url.replace(reg, 'manga/$2');
@@ -199,7 +199,7 @@ const manga = async (url: string) => {
 		for (const tag of chapterList) {
 			const title = tag.querySelector('.chapterLabel').innerHTML;
 
-			chapterObjectList.push({ title, url: scraper.root + tag.attributes.href });
+			chapterObjectList.push({ title, url: 'https://' + scraper.root + tag.attributes.href });
 		}
 
 		ma = createManga(mangaTitle, url, mangaImg, chapterObjectList, { description, tags: genreList , author: authorList.toString(), artist: authorList.toString(), publicationStatus: status, rating: null });
