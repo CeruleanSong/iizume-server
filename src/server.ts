@@ -16,7 +16,7 @@ import config from "../res/config.json";
 import Api from "./api";
 import Authenticate from "./middleware/authenticate";
 import Cookies from "./middleware/cookies";
-import Model from "./model";
+import { Chapter, Latest, User} from "./model";
 
 /*****************************
  * setup
@@ -33,7 +33,9 @@ mongoose.connect(config.db.url, { useCreateIndex: true, useNewUrlParser: true, u
 	console.log(`mongodb connected`, err);
 });
 
-mongoose.model(`User`, Model.User);
+mongoose.model(`User`, User);
+mongoose.model(`Latest`, Latest);
+mongoose.model(`Chapter`, Chapter);
 
 const Models = mongoose.models;
 

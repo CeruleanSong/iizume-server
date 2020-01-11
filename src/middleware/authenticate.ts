@@ -19,8 +19,7 @@ const secret = config.crypt.secret;
  */
 export default async (ctx: any, next: any) => {
 	let token: string = null;
-	console.log(ctx.headers);
-
+	
 	const authorization = ctx.headers.authorization ? ctx.headers.authorization : null;
 
 	if(authorization != null) {

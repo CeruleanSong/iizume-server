@@ -1,5 +1,9 @@
+import Chapter from "./Chapter";
+import Latest from "./Latest";
 import User from "./User";
 
-export default {
+export {
+	Chapter,
 	User,
+	Latest,
 };

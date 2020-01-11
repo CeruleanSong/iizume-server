@@ -144,6 +144,7 @@ const chapter = async (url: string) => {
 	const pageList: any[] = [];
 
 	const imageTag = pageHtml.querySelector('img.CurImage').attributes.src;
+	const title = pageHtml.querySelector('a.list-link span.hidden-xs').innerHTML.replace(/\t|\n/g, '');
 
 	let i = 1;
 	while(i <= chapterInfo.length) {
@@ -163,7 +164,7 @@ const chapter = async (url: string) => {
 		i++;
 	}
 
-	const ch = createChapter(+imageTag.replace(regex, '$2'), url, pageList, {});
+	const ch = createChapter(+imageTag.replace(regex, '$2'), url, pageList, { title });
 
 	return ch;
 };

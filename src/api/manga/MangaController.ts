@@ -9,6 +9,7 @@
 
 import { ParameterizedContext } from "koa";
 import Router from 'koa-router';
+import { cache } from "../../scripts/core/data/cache/ApiCache";
 import Scrapers, { exists } from "../../scripts/core/source/Scrapers";
 import { Models } from '../../server';
 
@@ -35,6 +36,8 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
 
 	ctx.body = await Scrapers[source].operations.latest(req.page);
+	// cache.latest(JSON.stringify(ctx.body), req);
+	cache.latest(ctx.body, req);
 	ctx.toJSON();
 });
 
@@ -83,6 +86,7 @@ router.all("/chapter", async (ctx: any) => {
 
 	const chapter = await Scrapers[source].operations.chapter(req.source);
 	ctx.body = chapter;
+	cache.chapter(ctx.body, { source, man: chapter.title, chap: chapter.num });
 	ctx.toJSON();
 });
 
