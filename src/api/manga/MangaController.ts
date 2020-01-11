@@ -38,6 +38,25 @@ router.all("/latest", async (ctx: ParameterizedContext) => {
 	ctx.toJSON();
 });
 
+router.all("/search", async (ctx: any) => {
+	let req = ctx.request.body.source ? ctx.request.body : null;
+	if(!req) {
+		req = ctx.request.query;
+	}
+
+	let source = exists(req.source);
+
+	if(!source) {
+		source = req.source;
+	}
+
+	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
+
+	const result = await Scrapers[source].operations.search(req);
+	ctx.body = result;
+	ctx.toJSON();
+});
+
 router.all("/series", async (ctx: any) => {
 	let req = ctx.request.body.source ? ctx.request.body : null;
 	if(!req) {
@@ -64,20 +83,6 @@ router.all("/chapter", async (ctx: any) => {
 
 	const chapter = await Scrapers[source].operations.chapter(req.source);
 	ctx.body = chapter;
-	ctx.toJSON();
-});
-
-router.all("/hot", async (ctx: any) => {
-	let req = ctx.request.body.source ? ctx.request.body : null;
-	if(!req) {
-		req = ctx.request.query;
-	}
-
-	const source = exists(req.source);
-
-	if(!source || !Scrapers[source]) { ctx.throw(401, errInvalidSource); }
-
-	ctx.body = await Scrapers[source].operations.hot(req.page);
 	ctx.toJSON();
 });
 

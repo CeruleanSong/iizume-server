@@ -7,6 +7,7 @@
  * Created 20-01-08
  */
 
+import cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import { parse } from 'node-html-parser';
 import puppeteer from 'puppeteer';
@@ -16,7 +17,8 @@ import { createManga, Manga } from '../../../../lib/manga/Manga';
 import { createPreview, Preview } from "../../../../lib/manga/Preview";
 import Scraper from "../Scraper";
 
-const latest = async (page: number = 1) => {const req = { page };
+const latest = async (page: number = 1) => {
+	const req = { page };
 	const previewList: Preview[] = [];
 
 	await fetch("https://" + scraper.root + '/home/latest.request.php', {
@@ -75,7 +77,7 @@ const latest = async (page: number = 1) => {const req = { page };
 				// });
 
 				previewList.push(createPreview(
-					titleString.toString().trim(), imgList[i].attributes.src, mangaUrl, scraper.name));
+					titleString.toString().trim(), imgList[i].attributes.src, mangaUrl, scraper.root));
 			}
 			else
 			{
@@ -88,12 +90,45 @@ const latest = async (page: number = 1) => {const req = { page };
 	return previewList;
 };
 
-const hot = async () => {
-	return null;
-};
+const search = async ({ keyword, status, genre, genreFilter, type }: any, page: number = 1) => {
 
-const search = async () => {
-	return null;
+	const req = { keyword, pstatus: status, genre, genreFilter, type };
+	const previewList: Preview[] = [];
+
+	console.log(req);
+
+	await fetch("https://" + scraper.root + '/search/request.php', {
+		method: 'post',
+		body: qs.stringify(req),
+		headers: {
+			'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+		},
+	}).then(async (res) => {
+		const data = await res.text();
+		const root: any = parse(data);
+
+		const images = root.querySelectorAll('div.requested div.row div.col-xs-4 img');
+		const info = root.querySelectorAll('div.col-xs-8');
+
+		// tslint:disable-next-line: prefer-for-of
+		for (let i=0; i<info.length;i++) {
+			const img = images[i].attributes.src;
+			const title = info[i].querySelector('.resultLink').innerHTML;
+			const url = 'https://' + scraper.root + info[i].querySelector('.resultLink').attributes.href;
+
+			const authors = []; // images[i].attributes.src;
+			const authorList = info[i].querySelectorAll('p')[0].querySelectorAll('a');
+			for(const tag of authorList) {
+				//
+				if(tag) {
+					authors.push(tag.innerHTML);
+				}
+			}
+			previewList.push(createPreview(title, img, url, scraper.root));
+		}
+	});
+
+	return previewList;
 };
 
 const chapter = async (url: string) => {
@@ -213,7 +248,6 @@ const scraper: Scraper = {
 	root: "mangaseeonline.us",
 	nsfw: false,
 	operations: {
-		hot,
 		search,
 		latest,
 		chapter,

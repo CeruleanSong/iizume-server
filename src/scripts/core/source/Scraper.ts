@@ -20,9 +20,8 @@ interface Scraper {
 		manga: (uri: string) => Promise<Manga>;
 		chapter: (uri: string) => Promise<Chapter>;
 
-		hot: (page?: number) => Promise<Preview[]>;
 		latest: (page?: number) => Promise<Preview[]>;
-		search: (name: string) => Promise<Preview[]>;
+		search: ({ keyword, status, genre, type }: any, page?: number) => Promise<Preview[]>;
 	};
 }
 
