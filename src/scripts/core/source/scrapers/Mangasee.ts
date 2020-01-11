@@ -95,8 +95,6 @@ const search = async ({ keyword, status, genre, genreFilter, type }: any, page: 
 	const req = { keyword, pstatus: status, genre, genreFilter, type };
 	const previewList: Preview[] = [];
 
-	console.log(req);
-
 	await fetch("https://" + scraper.root + '/search/request.php', {
 		method: 'post',
 		body: qs.stringify(req),
