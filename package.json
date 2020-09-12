@@ -34,7 +34,7 @@
 		"koa-session": "^5.12.3",
 		"mongodb": "^3.4.1",
 		"mongoose": "^5.8.2",
-		"node-fetch": "^2.6.0",
+		"node-fetch": "^2.6.1",
 		"node-html-parser": "^1.1.17",
 		"puppeteer": "^2.0.0",
 		"qs": "^6.9.1",
