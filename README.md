@@ -1,1 +1,1 @@
-# sakura-server
+# iizu.me-server
