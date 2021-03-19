@@ -10,15 +10,6 @@ jobs:
     steps:
       - checkout
       - ruby/install-deps
-  run:
-    docker:
-      - image: cimg/ruby:2.7.2-node
-    steps:
-      - checkout
-      - ruby/install-deps
-      - run:
-          name: Execute program
-          command: timeout 5 rake
   test:
     parallelism: 3
     docker:
@@ -38,8 +29,5 @@ workflows:
     jobs:
       - build
       - test:
-          requires:
-            - build
-      - run:
           requires:
             - build
