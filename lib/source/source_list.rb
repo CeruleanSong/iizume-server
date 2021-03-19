@@ -12,5 +12,13 @@ module Source
 				@@source_types.push(module_name)
 			end
 		end
+
+		def self.getSourceList
+			@@source_list
+		end
+
+		def self.getSourceTypes
+			@@source_types
+		end
 	end
 end

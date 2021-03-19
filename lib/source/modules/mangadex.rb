@@ -1,9 +1,9 @@
 module Source
 	class Scraper
 		def initialize
-			@origin = 'https://www.mangatown.com'
-			@name = 'mangatown'
-			@alias = 'mangatown'
+			@origin = 'https://mangadex.org'
+			@name = 'mangadex'
+			@alias = 'mangadex'
 		end
 		
 		def getOrigin
