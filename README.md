@@ -1,9 +1,10 @@
 # **iizu.me**
 
-**free and open source API for browsing and downloading manga.**
 
 <div align="center">
 <img src="res/repo/banner.png" alt='Project banner' height='100px'>
+
+**free and open source API for browsing and downloading manga.**
 
 ![Codacy coverage](https://img.shields.io/codacy/coverage/3fcc1ed5d7c84dc8a8ebc1ffe9ca56d6?style=flat-square)
 ![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me?style=flat-square)
