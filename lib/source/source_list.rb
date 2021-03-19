@@ -7,7 +7,7 @@ module Source
 			mod = `ls lib/source/modules`
 			mod.split(' ').each do|file|
 				module_name = file.split('.')[0]
-				loaded_module = require_relative "sources/#{module_name}"
+				loaded_module = require_relative "modules/#{module_name}"
 				@@source_list[module_name] = Source::Scraper.new
 				@@source_types.push(module_name)
 			end
