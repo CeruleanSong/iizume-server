@@ -4,7 +4,7 @@ module Source
 		@@source_types = Array.new
 		
 		def self.load_modules
-			mod = `ls src/lib/source/sources`
+			mod = `ls lib/source/modules`
 			mod.split(' ').each do|file|
 				module_name = file.split('.')[0]
 				loaded_module = require_relative "sources/#{module_name}"

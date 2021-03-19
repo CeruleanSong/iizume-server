@@ -1,4 +1,4 @@
-require_relative 'src/server'
+require_relative 'server'
 
 Server.compile!
 run Server
