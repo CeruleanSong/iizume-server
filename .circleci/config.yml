@@ -1,0 +1,45 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@1.1.2
+  node: circleci/node@2
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:2.7.2-node
+    steps:
+      - checkout
+      - ruby/install-deps
+  run:
+    docker:
+      - image: cimg/ruby:2.7.2-node
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Execute program
+          command: timeout 5 rake
+  test:
+    parallelism: 3
+    docker:
+      - image: cimg/ruby:2.7-node
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Run tests
+          command: rake test
+      - ruby/rspec-test
+      # [TODO] - ruby/rubocop-check
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - run:
+          requires:
+            - build
