@@ -16,9 +16,11 @@
 
 ## Getting Started
 
-### Prerequisites
+### Dependancies
 - Ruby >= 2.7.0
-- Bundler >= 2.7.0
+- rake >= 13.0.0
+- bundler >= 2.2.0
+- rspec >= 3.0.0
 
 ### Installing
 Install all of the required libraires using bundler:
@@ -46,7 +48,7 @@ Specifications & design documents can be found in the [wiki](/wiki).
 
 ## See Also
 
-- **iizu.me-app - https://github.com/songmawa/pndo.me-app**
+- **iizu.me-app - https://github.com/songmawa/iizu.me-app**
 
 ## Contributing
 
