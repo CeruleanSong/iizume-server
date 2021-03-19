@@ -2,10 +2,7 @@ source 'https://rubygems.org'
 
 gem 'grape'
 gem 'nokogiri'
-
-group :production do
-	gem "puma" 
-end 
+gem "puma" 
 
 group :test do
   gem 'rspec'
