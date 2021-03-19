@@ -5,7 +5,7 @@ end
 
 desc "Test application"
 task :test do
-  sh "rspec ./spec/spec_helper.rb"
+  sh "bundle exec rspec ./spec/spec_helper.rb"
 end
 
 task default: :run
