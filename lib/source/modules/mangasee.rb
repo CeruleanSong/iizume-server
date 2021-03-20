@@ -6,6 +6,15 @@ module Source
 			@alias = 'mangasee'
 		end
 		
+		def getOperations
+			{
+				"operations": [
+					'latest',
+					'hot'
+				]
+			}
+		end
+		
 		def getOrigin
 			return @origin
 		end
@@ -16,6 +25,12 @@ module Source
 		
 		def getAlias
 			return @alias
+		end
+
+		def getLatest
+		end
+
+		def getHot
 		end
 	end
 end
