@@ -5,6 +5,7 @@ gem "puma"
 
 gem 'rom'
 gem 'rom-sql'
+gem 'mysql2'
 
 gem 'nokogiri'
 gem "ferrum"

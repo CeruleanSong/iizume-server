@@ -1,0 +1,9 @@
+---
+database:
+  url: my.database.ca
+  port: 3306
+  schema: test
+
+options:
+  username: username
+  password: password
