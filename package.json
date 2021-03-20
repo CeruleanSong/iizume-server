@@ -1,0 +1,17 @@
+{
+  "name": "iizu.me",
+  "version": "1.0.0",
+  "description": "free and open source API for browsing and downloading manga.",
+  "main": "server.rb",
+  "repository": "git@github.com:songmawa/iizu.me-server.git",
+  "author": "Elias Mawa <elias@emawa.io>",
+  "license": "GPLv3",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon --watch './**/*' --signal SIGTERM -e rb --exec rake run"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
