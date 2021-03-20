@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'grape'
 gem 'nokogiri'
 gem "puma" 
+gem "ferrum"
 
 group :test do
   gem 'rake'

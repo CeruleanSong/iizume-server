@@ -1,3 +1,8 @@
+require 'net/http'
+require 'uri'
+require 'ferrum'
+require 'json'
+
 module Source
 	class SourceList
 		@@source_list = Hash.new
