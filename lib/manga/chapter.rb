@@ -2,9 +2,9 @@ module Model
 	module Source
 		class Chapter
 			def initialize(origin, title, chapter_n, upload_date, scanlator)
-				@chapter_n = chapter_n
 				@origin = origin
 				@title = title
+				@chapter_n = chapter_n
 				@upload_date = upload_date
 				@scanlator = scanlator
 				@page_list = Array.new

@@ -1,5 +1,5 @@
-require_relative '../../lib/model/manga/chapter'
-require_relative '../../lib/model/manga/manga'
+require_relative '../../lib/manga/chapter'
+require_relative '../../lib/manga/manga'
 
 module Controller
 	module Api

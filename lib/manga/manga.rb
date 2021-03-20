@@ -1,11 +1,19 @@
 module Model
 	module Source
 		class Manga
-			def initialize(origin, title, authors, description)
+			def initialize(origin, cover, title, author, artist, description,
+				tags, type, released, status_origin, status_scan)
 				@origin = origin
+				@cover = cover
 				@title = title
-				@authors = authors
+				@author = authors
+				@artist = artist
 				@description = description
+				@tags = tags
+				@type = type
+				@released = released
+				@status_origin = type
+				@status_scan = type
 				@chapter_list = Array.new
 			end
 
