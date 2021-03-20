@@ -28,6 +28,13 @@ module Source
 		end
 
 		def getLatest
+			# browser = Ferrum::Browser.new
+			# browser.go_to("#{@origin}/")
+			# browser.screenshot(path: "google.png")
+			# vm.HotUpdateJSON
+			_page = Net::HTTP.get URI(@origin)
+			_latest_data = _page.match(/\svm\.LatestJSON = (\[\{.*\}\])/)
+			return JSON.parse _latest_data[1]
 		end
 
 		def getHot
