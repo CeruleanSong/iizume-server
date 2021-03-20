@@ -6,6 +6,12 @@ module Source
 			@alias = 'mangadex'
 		end
 		
+		def getOperations
+			{
+				
+			}
+		end
+		
 		def getOrigin
 			return @origin
 		end
