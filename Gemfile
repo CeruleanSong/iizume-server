@@ -1,8 +1,12 @@
 source 'https://rubygems.org'
 
 gem 'grape'
-gem 'nokogiri'
 gem "puma" 
+
+gem 'rom'
+gem 'rom-sql'
+
+gem 'nokogiri'
 gem "ferrum"
 
 group :test do
