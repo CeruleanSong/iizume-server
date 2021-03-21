@@ -2,6 +2,10 @@ require 'net/http'
 require 'uri'
 require 'ferrum'
 require 'json'
+require 'securerandom'
+
+require_relative '../../db/db_connection'
+require_relative '../../db/model/source'
 
 module Source
 	class SourceList
@@ -15,6 +19,16 @@ module Source
 				loaded_module = require_relative "modules/#{module_name}"
 				@@source_list[module_name] = Source::Scraper.new
 				@@source_types.push(module_name)
+
+				source_exists = $DB[:source].select(:alias).where(alias: @@source_list[module_name].getAlias)
+				if !source_exists.first
+					new_source = Model::Source.new({
+						source_id: SecureRandom.hex(8),
+						origin: @@source_list[module_name].getOrigin,
+						name: @@source_list[module_name].getName,
+						alias: @@source_list[module_name].getAlias
+					}).save
+				end
 			end
 		end
 
