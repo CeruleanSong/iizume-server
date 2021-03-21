@@ -4,9 +4,6 @@ require 'ferrum'
 require 'json'
 require 'securerandom'
 
-require_relative '../../db/db_connection'
-require_relative '../../db/model/source'
-
 module Source
 	class SourceList
 		@@source_list = Hash.new
@@ -20,13 +17,14 @@ module Source
 				@@source_list[module_name] = Source::Scraper.new
 				@@source_types.push(module_name)
 
-				source_exists = $DB[:source].select(:alias).where(alias: @@source_list[module_name].getAlias)
+				source_exists = $DB[:source].select(:alias).where(alias: module_name)
 				if !source_exists.first
 					new_source = Model::Source.new({
 						source_id: SecureRandom.hex(8),
 						origin: @@source_list[module_name].getOrigin,
 						name: @@source_list[module_name].getName,
-						alias: @@source_list[module_name].getAlias
+						alias: @@source_list[module_name].getAlias,
+						enabled: @@source_list[module_name].isEnabled,
 					}).save
 				end
 			end
