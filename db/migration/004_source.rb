@@ -8,6 +8,9 @@ Sequel.migration do
 			String :origin, unique: true, null: false
 			String :name, unique: true, null: false
 			String :alias, unique: true, null: false
+			TrueClass :enabled, default: false
+			column :created, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
+			column :updated, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
 		end
 	end
 

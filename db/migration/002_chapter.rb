@@ -5,12 +5,13 @@ Sequel.migration do
 		create_table!(:chapter) do
 			primary_key :id
 			String :chapter_id, null: false, unique: true, size: 16
-			String :origin, null: false
 			String :title, null: false
 			String :chapter_n, null: true
-			Date :upload_date, null: true
+			DateTime :upload_date, null: true
 			String :scanlator, null: true
 			String :page_list, null: true
+			column :created, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
+			column :updated, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
 		end
 	end
 
