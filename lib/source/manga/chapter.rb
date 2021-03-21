@@ -1,5 +1,5 @@
-module Model
-	module Source
+module Source
+	module Manga
 		class Chapter
 			def initialize(origin, title, chapter_n, upload_date, scanlator)
 				@origin = origin

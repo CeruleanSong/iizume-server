@@ -1,5 +1,5 @@
-module Model
-	module Source
+module Source
+	module Manga
 		class Manga
 			def initialize(origin, cover, title, author, artist, description,
 				tags, type, released, status_origin, status_scan)

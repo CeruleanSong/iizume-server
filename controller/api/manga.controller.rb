@@ -1,5 +1,5 @@
-require_relative '../../lib/manga/chapter'
-require_relative '../../lib/manga/manga'
+require_relative '../../lib/source/manga/chapter'
+require_relative '../../lib/source/manga/manga'
 
 module Controller
 	module Api
@@ -7,7 +7,7 @@ module Controller
 			prefix :manga
 
 			get '/' do
-				manga = Model::Source::Chapter.new(0, 'google.ca', '', '0', 'google')
+				manga = Source::Manga::Chapter.new(0, 'google.ca', '', '0', 'google')
 				manga.add_page 'hello world!'
 				return manga.to_json()
 			end

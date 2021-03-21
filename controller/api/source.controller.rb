@@ -1,5 +1,5 @@
-require_relative '../../lib/manga/chapter'
-require_relative '../../lib/manga/manga'
+require_relative '../../lib/source/manga/chapter'
+require_relative '../../lib/source/manga/manga'
 require_relative '../../lib/source/source_list'
 
 module Controller
