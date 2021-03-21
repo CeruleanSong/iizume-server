@@ -1,9 +1,10 @@
 module Source
 	class Scraper
 		def initialize
-			@origin = 'https://mangadex.org/'
+			@origin = 'https://mangadex.org'
 			@name = 'mangadex'
 			@alias = 'mangadex'
+			@enabled = false
 		end
 		
 		def getOperations
@@ -22,6 +23,10 @@ module Source
 		
 		def getAlias
 			return @alias
+		end
+
+		def isEnabled
+			return @enabled
 		end
 	end
 end
