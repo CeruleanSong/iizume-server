@@ -35,7 +35,7 @@ module Source
 			return @enabled
 		end
 
-		def full_sync
+		def cache_all
 			browser = Ferrum::Browser.new({timeout: 20})
 			browser.go_to("#{@origin}/directory")
 
