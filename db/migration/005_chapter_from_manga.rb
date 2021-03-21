@@ -1,6 +1,6 @@
 Sequel.migration do
 	change do
-		create_or_replace_view(:chapter_in_manga, "
+		create_or_replace_view(:chapter_from_manga, "
 			SELECT t2.* FROM
 			(SELECT
 				t1.manga_id, chapter.chapter_id, chapter.title, chapter.upload_date,
