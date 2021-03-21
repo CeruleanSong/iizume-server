@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'date'
+require 'json'
 
 require_relative '../db/db_connection'
 require_relative '../db/model/source'
