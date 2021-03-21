@@ -5,9 +5,9 @@ Sequel.migration do
 		create_table!(:source) do
 			primary_key :id
 			String :source_id, null: false, unique: true, size: 16
-			String :origin, null: false
-			String :name, null: false
-			String :alias, null: false
+			String :origin, unique: true, null: false
+			String :name, unique: true, null: false
+			String :alias, unique: true, null: false
 		end
 	end
 
