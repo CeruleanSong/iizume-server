@@ -10,4 +10,4 @@ $CONNECTION_URL_PASSWORD = "mysql2://#{$CONFIG['options']['username']}:#{$CONFIG
 #{$CONFIG['database']['url']}:\
 #{$CONFIG['database']['port']}/#{$CONFIG['database']['schema']}"
 
-$DB_CONNECTION = Sequel.connect($CONNECTION_URL, $CONFIG['options'])
+$DB = Sequel.connect($CONNECTION_URL, $CONFIG['options'])
