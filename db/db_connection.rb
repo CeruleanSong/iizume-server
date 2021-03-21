@@ -1,13 +1,13 @@
-require 'rom'
+#!/usr/bin/env ruby
+require 'sequel'
 require 'mysql2'
 require 'yaml'
 
-config = YAML.load(File.read("db/db_config.yml"))
-connection_url = "mysql2://#{config['database']['url']}:#{config['database']['port']}/#{config['database']['schema']}"
+$CONFIG = YAML.load(File.read("db/db_config.yml"))
+$CONNECTION_URL = "mysql2://#{$CONFIG['database']['url']}:\
+#{$CONFIG['database']['port']}/#{$CONFIG['database']['schema']}"
+$CONNECTION_URL_PASSWORD = "mysql2://#{$CONFIG['options']['username']}:#{$CONFIG['options']['password']}@\
+#{$CONFIG['database']['url']}:\
+#{$CONFIG['database']['port']}/#{$CONFIG['database']['schema']}"
 
-config = ROM::Configuration.new(:sql, connection_url, config['options'])
-if config
-	puts "connected to: #{connection_url}"
-else
-	puts "connection failed"
-end
+$DB_CONNECTION = Sequel.connect($CONNECTION_URL, $CONFIG['options'])

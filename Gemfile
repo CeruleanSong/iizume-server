@@ -3,8 +3,7 @@ source 'https://rubygems.org'
 gem 'grape'
 gem "puma" 
 
-gem 'rom'
-gem 'rom-sql'
+gem 'sequel'
 gem 'mysql2'
 
 gem 'nokogiri'
