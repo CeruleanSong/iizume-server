@@ -5,3 +5,5 @@ coverage.sh
 db_config.yml
 
 node_modules/
+
+log_*.json
