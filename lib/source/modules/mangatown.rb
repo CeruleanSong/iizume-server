@@ -1,16 +1,14 @@
 module Source
-	class Scraper
+	def self.create
+		Mangatown.new
+	end
+
+	class Mangatown
 		def initialize
 			@origin = 'https://www.mangatown.com'
 			@name = 'mangatown'
 			@alias = 'mangatown'
 			@enabled = false
-		end
-		
-		def getOperations
-			{
-				
-			}
 		end
 		
 		def getOrigin

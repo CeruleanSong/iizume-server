@@ -2,21 +2,16 @@ require 'nokogiri'
 require 'securerandom'
 
 module Source
-	class Scraper
+	def self.create
+		Mangasee.new
+	end
+
+	class Mangasee
 		def initialize
 			@origin = 'https://mangasee123.com'
 			@name = 'mangasee123'
 			@alias = 'mangasee'
 			@enabled = true
-		end
-		
-		def getOperations
-			{
-				"operations": [
-					'latest',
-					'hot'
-				]
-			}
 		end
 		
 		def getOrigin

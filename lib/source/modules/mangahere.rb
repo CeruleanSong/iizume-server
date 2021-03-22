@@ -1,16 +1,14 @@
 module Source
-	class Scraper
+	def self.create
+		Mangahere.new
+	end
+
+	class Mangahere
 		def initialize
 			@origin = 'http://www.mangahere.cc'
 			@name = 'mangahere'
 			@alias = 'mangahere'
 			@enabled = false
-		end
-		
-		def getOperations
-			{
-				
-			}
 		end
 		
 		def getOrigin
