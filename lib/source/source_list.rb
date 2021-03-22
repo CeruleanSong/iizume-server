@@ -13,8 +13,10 @@ module Source
 			mod = `ls lib/source/modules`
 			mod.split(' ').each do|file|
 				module_name = file.split('.')[0]
+				
 				loaded_module = require_relative "modules/#{module_name}"
-				@@source_list[module_name] = Source::Scraper.new
+
+				@@source_list[module_name] = Source::create
 				@@source_types.push(module_name)
 
 				source_exists = $DB[:source].select(:alias).where(alias: module_name)
@@ -32,6 +34,10 @@ module Source
 
 		def self.getSourceList
 			@@source_list
+		end
+
+		def self.getSource(_source)
+			@@source_list[_source]
 		end
 
 		def self.getSourceTypes
