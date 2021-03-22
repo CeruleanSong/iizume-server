@@ -11,7 +11,7 @@ Sequel.migration do
 				ON manga.id = manga_chapter.manga_id) as t1
 				INNER JOIN chapter
 			ON t1.chapter_id = chapter.id) as t2
-			ORDER BY t2.chapter_n ASC
+			ORDER BY t2.chapter_n DESC
 		")
 	end
 
