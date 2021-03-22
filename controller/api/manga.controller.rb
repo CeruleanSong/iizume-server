@@ -6,10 +6,22 @@ module Controller
 		class MangaController < Grape::API
 			prefix :manga
 
-			get '/' do
-				manga = Source::Manga::Chapter.new(0, 'google.ca', '', '0', 'google')
-				manga.add_page 'hello world!'
-				return manga.to_json()
+			route :any, '/:manga_id' do
+				manga = $DB['
+					SELECT * FROM manga_from_source
+					JOIN tags_from_manga
+					ON manga_from_source.manga_id = tags_from_manga.manga_id
+					WHERE manga_from_source.manga_id = ?',
+					params[:manga_id]
+				].first
+				return manga
+			end
+
+			route :any, '/:manga_id/chapter' do
+				manga = $DB[:chapter_from_manga]
+				.where(manga_id: params[:manga_id])
+				.first
+				return manga
 			end
 		end
 	end
