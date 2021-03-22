@@ -9,7 +9,7 @@ module Source
 	class Mangasee
 		def initialize(source_id)
 			@origin = 'https://mangasee123.com'
-			@name = 'mangasee123'
+			@title = 'mangasee123'
 			@alias = 'mangasee'
 			@enabled = true
 			@source_id = source_id
@@ -19,8 +19,8 @@ module Source
 			return @origin
 		end
 		
-		def getName
-			return @name
+		def getTitle
+			return @title
 		end
 		
 		def getAlias

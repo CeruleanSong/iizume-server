@@ -6,7 +6,7 @@ module Source
 	class Mangadex
 		def initialize(source_id)
 			@origin = 'https://mangadex.org'
-			@name = 'mangadex'
+			@title = 'mangadex'
 			@alias = 'mangadex'
 			@enabled = false
 			@source_id = source_id
@@ -16,8 +16,8 @@ module Source
 			return @origin
 		end
 		
-		def getName
-			return @name
+		def getTitle
+			return @title
 		end
 		
 		def getAlias

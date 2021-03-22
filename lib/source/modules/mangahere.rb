@@ -6,7 +6,7 @@ module Source
 	class Mangahere
 		def initialize(source_id)
 			@origin = 'http://www.mangahere.cc'
-			@name = 'mangahere'
+			@title = 'mangahere'
 			@alias = 'mangahere'
 			@enabled = false
 			@source_id = source_id
@@ -16,8 +16,8 @@ module Source
 			return @origin
 		end
 		
-		def getName
-			return @name
+		def getTitle
+			return @title
 		end
 		
 		def getAlias
