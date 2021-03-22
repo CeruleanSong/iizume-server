@@ -7,7 +7,7 @@ Sequel.migration do
 			String :chapter_id, null: false, unique: true, size: 16
 			String :title, null: false
 			String :chapter_n, null: true
-			DateTime :upload_date, null: true
+			column :upload_date, 'timestamp(6)', null: true
 			String :scanlator, null: true
 			String :page_list, null: true
 			column :created, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
