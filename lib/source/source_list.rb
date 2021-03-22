@@ -16,13 +16,20 @@ module Source
 				
 				loaded_module = require_relative "modules/#{module_name}"
 
-				@@source_list[module_name] = Source::create
+				source_exists = $DB[:source].select(:alias, :source_id).where(alias: module_name)
+				source_id = ""
+				if source_exists.first
+					source_id = source_exists.first[:source_id]
+				else
+					source_id = SecureRandom.hex(8)
+				end
+
+				@@source_list[module_name] = Source::create(source_id)
 				@@source_types.push(module_name)
 
-				source_exists = $DB[:source].select(:alias).where(alias: module_name)
 				if !source_exists.first
 					new_source = Model::Source.new({
-						source_id: SecureRandom.hex(8),
+						source_id: source_id,
 						origin: @@source_list[module_name].getOrigin,
 						name: @@source_list[module_name].getName,
 						alias: @@source_list[module_name].getAlias,
