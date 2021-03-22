@@ -2,7 +2,7 @@ require 'sequel'
 
 Sequel.migration do
 	change do
-		create_table!(:manga_chapter) do
+		create_table?(:manga_chapter) do
 			String :origin, null: false
 			foreign_key :manga_id, :manga
 			foreign_key :chapter_id, :chapter

@@ -2,7 +2,7 @@ require 'sequel'
 
 Sequel.migration do
 	change do
-		create_table!(:chapter) do
+		create_table?(:chapter) do
 			primary_key :id
 			String :chapter_id, null: false, unique: true, size: 16
 			String :title, null: false

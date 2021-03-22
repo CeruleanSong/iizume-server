@@ -2,7 +2,7 @@ require 'sequel'
 
 Sequel.migration do
 	change do
-		create_table!(:manga) do
+		create_table?(:manga) do
 			primary_key :id
 			String :manga_id, null: false, unique: true, size: 16
 			String :cover, null: true
