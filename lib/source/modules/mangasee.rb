@@ -171,20 +171,32 @@ module Source
 			end
 		end
 
+		def getLatest(page, limit)
+			$DB[:latest_manga]
+			.where(source_id: @source_id)
+			.limit(limit, page)
+			.all
+		end
+
+		def getManga(manga_id)
+			return @origin
+		end
+		
+
 		def parse_status(_status)
-				if _status.include?('Cancelled')
-					return "cancelled"
-				elsif _status.include?('Complete')
-					return "complete"
-				elsif _status.include?('Discontinued')
-					return "discontinued"
-				elsif _status.include?('Hiatus')
-					return "hiatus"
-				elsif _status.include?('Ongoing')
-					return "ongoing"
-				else
-					return "unknown"
-				end
+			if _status.include?('Cancelled')
+				return "cancelled"
+			elsif _status.include?('Complete')
+				return "complete"
+			elsif _status.include?('Discontinued')
+				return "discontinued"
+			elsif _status.include?('Hiatus')
+				return "hiatus"
+			elsif _status.include?('Ongoing')
+				return "ongoing"
+			else
+				return "unknown"
+			end
 		end
 	end
 end
