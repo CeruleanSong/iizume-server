@@ -8,16 +8,21 @@ module Controller
 			prefix :source
 
 			get '/' do
-				_sources = Source::SourceList::getSourceTypes
-				return { sources: _sources }
+				sources = $DB[:source]
+				.select(:source_id, :origin, :alias, :enabled).all
+				return sources
 			end
 
 			get '/:source' do
-				_source = Source::SourceList::getSourceList[params[:source]]
-				return _source.getOperations
+				source = $DB[:source]
+				.select(:source_id, :origin, :alias, :enabled)
+				.where(Sequel.or(name: params[:source], source_id: params[:source]))
+				.first
+				return source
 			end
 			
 			get '/:source/latest' do
+				source = $DB[:manga]
 				_source = Source::SourceList::getSourceList[params[:source]]
 				return _source.getLatest
 			end
