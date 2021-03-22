@@ -1,14 +1,15 @@
 module Source
-	def self.create
-		Mangahere.new
+	def self.create(source_id)
+		Mangahere.new(source_id)
 	end
 
 	class Mangahere
-		def initialize
+		def initialize(source_id)
 			@origin = 'http://www.mangahere.cc'
 			@name = 'mangahere'
 			@alias = 'mangahere'
 			@enabled = false
+			@source_id = source_id
 		end
 		
 		def getOrigin

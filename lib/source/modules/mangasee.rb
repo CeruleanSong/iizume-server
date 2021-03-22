@@ -2,16 +2,17 @@ require 'nokogiri'
 require 'securerandom'
 
 module Source
-	def self.create
-		Mangasee.new
+	def self.create(source_id)
+		Mangasee.new(source_id)
 	end
 
 	class Mangasee
-		def initialize
+		def initialize(source_id)
 			@origin = 'https://mangasee123.com'
 			@name = 'mangasee123'
 			@alias = 'mangasee'
 			@enabled = true
+			@source_id = source_id
 		end
 		
 		def getOrigin

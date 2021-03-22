@@ -1,14 +1,15 @@
 module Source
-	def self.create
-		Mangadex.new
+	def self.create(source_id)
+		Mangadex.new(source_id)
 	end
 
 	class Mangadex
-		def initialize
+		def initialize(source_id)
 			@origin = 'https://mangadex.org'
 			@name = 'mangadex'
 			@alias = 'mangadex'
 			@enabled = false
+			@source_id = source_id
 		end
 		
 		def getOrigin
