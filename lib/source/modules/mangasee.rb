@@ -31,6 +31,124 @@ module Source
 			return @enabled
 		end
 
+		def cache_manga
+		end
+
+		def cache_chapters
+		end
+		
+		def cache_latest(n_page = 2)
+			browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+			browser.go_to("#{@origin}")
+			sleep 0.5 # pause to load javascript
+
+			for index in 0..(n_page > 7 ? 7 : n_page)
+				browser.execute('document.getElementsByClassName(\'ViewMore\')[0].click()')
+			end
+			sleep 0.5 # pause to load javascript
+
+			manga_info_list = []
+
+			doc = Nokogiri::HTML(browser.body)
+			row = doc.css('div.LatestChapters div.row.Chapter')
+			for item in row
+				manga_origin = item.css('div.Image a')[0]['href'].strip
+				manga_cover = item.css('div.Image a img')[0]['src'].strip
+				manga_title = item.css('div.Label .SeriesName').text.strip
+
+				scrape_chapter = item.css('div.Label .ChapterLabel').text.strip
+				scrape_chapter_release = item.css('div.Label .DateLabel').text.strip
+				scrape_chapter_origin = item.css('div.Label a')[0]['href'].strip
+
+				chapter_number = parse_chapter_number(scrape_chapter)
+				chapter_release = parse_chapter_release(scrape_chapter_release)
+
+				$DB.transaction do
+					manga_info = $DB[:manga]
+					.where(title: manga_title)
+					.join(:source_manga, manga_id: :manga_id)
+					.where(source_id: @source_id).first
+
+					manga_id = manga_info ? manga_info[:manga_id] : SecureRandom.hex(8)
+
+					if manga_info
+						manga_info
+						.update({
+							cover: manga_cover,
+						})
+					else
+						$DB[:manga]
+						.on_duplicate_key_update()
+						.insert({
+							manga_id: manga_id,
+							origin: manga_origin,
+							cover: manga_cover,
+							title: manga_title
+						})
+						$DB[:source_manga]
+						.insert({
+							manga_id: manga_id,
+							source_id: @source_id,
+						})
+					end
+
+					chapter_info = $DB[:chapter]
+					.where(chapter_n: chapter_number)
+					.join(:manga_chapter, chapter_id: :chapter_id)
+					.where(manga_id: manga_id).first
+
+					chapter_id = chapter_info ? chapter_info[:chapter_id] : SecureRandom.hex(8)
+
+					if !chapter_info
+						$DB[:chapter]
+						.on_duplicate_key_update()
+						.insert({
+							chapter_id: chapter_id,
+							origin: scrape_chapter_origin,
+							chapter_n: chapter_number,
+							released: chapter_release
+						})
+						$DB[:manga_chapter]
+						.on_duplicate_key_update()
+						.insert({
+							chapter_id: chapter_id,
+							manga_id: manga_id,
+						})
+					end
+				end
+			end
+		end
+
+		def parse_chapter_number(chapter_n)
+			chapter_number = chapter_n.split(/ /, 2)
+			return begin Integer(chapter_number[1]) rescue 0 end
+		end
+
+		def parse_chapter_release(chapter_r)
+			release_string = chapter_r.split(/ /, 2)
+			string_n = release_string[0]
+			frame = release_string[1].split[0]
+			number = begin Integer(string_n) rescue false end
+
+			if number
+				if frame.include? "minute"
+					return Time.now - number
+				elsif frame.include? "hour"
+					return Time.now - (number*(60*60))
+				elsif frame.include? "day"
+					return Time.now - (number*(60*60*24))
+				else
+					return Time.now
+				end
+			else
+				if frame.include? "hour"
+					return Time.now - (60*60)
+				elsif frame.include? "day"
+					return Time.now - (60*60*24)
+				end
+			end
+		end
+
 		def cache_all
 			browser = Ferrum::Browser.new({timeout: 20})
 			browser.go_to("#{@origin}/directory")
