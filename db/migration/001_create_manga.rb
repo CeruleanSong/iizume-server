@@ -7,7 +7,7 @@ Sequel.migration do
 			column(:manga_id, 'varchar(16)', null: false, unique: true)
 			column(:origin, 'varchar(32)')
 			column(:cover, 'varchar(16)', null: true)
-			column(:title, 'varchar(16)', null: false)
+			column(:title, 'tinytext', null: false)
 			column(:author, 'varchar(16)', null: true)
 			column(:artist, 'varchar(16)', null: true)
 			column(:description, 'text', null: true)
