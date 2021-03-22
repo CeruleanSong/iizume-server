@@ -6,6 +6,7 @@ gem "puma"
 gem 'sequel'
 gem 'mysql2'
 
+gem 'json-schema'
 gem 'nokogiri'
 gem "ferrum"
 
