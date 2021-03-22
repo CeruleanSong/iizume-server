@@ -5,8 +5,8 @@ Sequel.migration do
 		create_table?(:chapter) do
 			primary_key(:id, 'int(11)')
 			column(:chapter_id, 'varchar(16)', null: false, unique: true)
-			column(:origin, 'tinytext')
-			column(:title, 'tinytext')
+			column(:origin, 'varchar(256)', null: false, unique: true)
+			column(:title, 'varchar(256)', null: true)
 			column(:chapter_n, 'float(3)')
 			column(:scanlator, 'varchar(32)')
 			column(:released, 'datetime')

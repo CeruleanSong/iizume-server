@@ -5,9 +5,9 @@ Sequel.migration do
 		create_table?(:manga) do
 			primary_key(:id, 'int(11)')
 			column(:manga_id, 'varchar(16)', null: false, unique: true)
-			column(:origin, 'tinytext')
-			column(:cover, 'varchar(32)', null: true)
-			column(:title, 'tinytext', null: false)
+			column(:origin, 'varchar(256)', null: false, unique: true)
+			column(:cover, 'tinytext', null: true)
+			column(:title, 'varchar(256)', null: false, unique: true)
 			column(:author, 'varchar(32)', null: true)
 			column(:artist, 'varchar(32)', null: true)
 			column(:description, 'text', null: true)
