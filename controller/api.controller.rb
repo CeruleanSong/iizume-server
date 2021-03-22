@@ -1,3 +1,4 @@
+require_relative 'api/chapter.controller'
 require_relative 'api/manga.controller'
 require_relative 'api/source.controller'
 
@@ -6,10 +7,13 @@ module Controller
 		version 'v1', using: :header, vendor: 'iizu.me'
 		format :json
 		
-		desc 'Get manga.'
+		desc 'Chapter controller.'
+		mount Api::ChapterController
+
+		desc 'Manga controller.'
 		mount Api::MangaController
 
-		desc 'Use sources.'
+		desc 'Source controller.'
 		mount Api::SourceController
 	end
 end
