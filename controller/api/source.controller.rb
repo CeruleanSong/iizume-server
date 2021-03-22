@@ -1,7 +1,7 @@
 require "json-schema"
 
-require_relative '../../lib/source/manga/chapter'
-require_relative '../../lib/source/manga/manga'
+require_relative '../../lib/source/model/chapter'
+require_relative '../../lib/source/model/manga'
 require_relative '../../lib/source/source_list'
 
 module Controller
