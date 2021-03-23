@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'securerandom'
 
+require_relative '../helper/cache_helper'
+
 module Source
 	def self.create(source_id)
 		Mangasee.new(source_id)
@@ -31,21 +33,119 @@ module Source
 			return @enabled
 		end
 
-		def cache_manga
+		def cache_manga(manga_id)
+			manga_info = Helper.find_manga_by_title_or_id @source_id, manga_id
+
+			if manga_info
+				browser = Ferrum::Browser.new({timeout: 20})
+				browser.go_to("#{@origin}#{manga_info[:origin]}")
+				# sleep 0.25 # pause to load javascript
+				
+				doc = Nokogiri::HTML(browser.body)
+				rows = doc.css('li.list-group-item')
+				
+				# alternate name(s) row 
+				alt_offset = (rows[2].css("span").text.include? "Alternate") ? 0 : 1
+				# offical tl row 
+				otl_offset = (rows[7-alt_offset].css("span").text.include? "Official") ? 0 : 1
+
+				manga_cover = doc.css('div.col-3 img')[0]['src']
+
+				manga_author = rows[3-alt_offset].css("a")[0].text
+				has_artist = rows[3-alt_offset].css("a").length > 1
+				manga_artist = has_artist ? rows[3-alt_offset].css("a")[1].text : nil
+
+				manga_description = rows[10-alt_offset-otl_offset].css("div").text
+
+				tag_list = []
+				for tag in rows[4-alt_offset].css("a")
+					tag_list << tag.text
+				end
+
+				manga_type = rows[5-alt_offset].css("a").text
+				manga_released = Time.new(Integer(rows[6-alt_offset].css("a").text))
+
+				status_origin = rows[8-alt_offset-otl_offset].css("a")[0].text
+				manga_status_origin = parse_chapter_status(status_origin)
+				status_scan = rows[8-alt_offset-otl_offset].css("a")[1].text
+				manga_status_scan = parse_chapter_status(status_scan)
+
+				$DB.transaction do
+					$DB[:manga]
+					.where(manga_id: manga_id)
+					.update({
+						manga_id: manga_info[:manga_id],
+						author: manga_author,
+						artist: manga_artist,
+						description: manga_description,
+						status_origin: manga_status_origin,
+						status_scan: manga_status_scan,
+						type: manga_type,
+						released: manga_released,
+						partial: false,
+						updated: DateTime.now
+					})
+
+					Helper.store_tags(manga_id, tag_list)
+				end
+			else
+				return nil
+			end
 		end
 
-		def cache_chapters
+		def cache_manga_chapters(manga_id)
+			manga_info = Helper.find_manga_by_title_or_id @source_id, manga_id
+
+			if manga_info
+				browser = Ferrum::Browser.new({timeout: 20})
+				browser.go_to("#{@origin}#{manga_info[:origin]}")
+				sleep 0.05 # pause to load javascript
+
+				browser.execute('document.getElementsByClassName(\'ShowAllChapters\')[0].click()')
+				sleep 0.25 # pause to load javascript
+
+				doc = Nokogiri::HTML(browser.body)
+				rows = doc.css('.ChapterLink')
+				for chapter in rows
+					chapter_origin = chapter[:href]
+					chapter_number = parse_chapter_number(chapter.css('span')[0].text.strip)
+					scape_release = chapter.css('div')[0].text.strip
+
+					if scape_release.split(/\//).length > 1
+						release_parts = scape_release.split(/\//)
+						chapter_release = Date.new(
+							Float(release_parts[2]),
+							Float(release_parts[0]),
+							Float(release_parts[1])
+						)
+					else
+						chapter_release = parse_chapter_release(scape_release)
+					end
+
+					chapter_info = Helper.find_chapter_by_number(manga_id, chapter_number)
+					chapter_id = chapter_info ? chapter_info[:chapter_id] : SecureRandom.hex(8)
+					if !chapter_info
+						Helper.store_manga_chapter(manga_id, {
+							chapter_id: chapter_id,
+							origin: chapter_origin,
+							chapter_n: chapter_number,
+							released: chapter_release,
+							updated: DateTime.now
+						})
+					end
+				end
+			end
 		end
-		
+
 		def cache_latest(n_page = 2)
 			browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 			browser.go_to("#{@origin}")
-			sleep 0.5 # pause to load javascript
+			sleep 0.05 # pause to load javascript
 
 			for index in 0..(n_page > 7 ? 7 : n_page)
 				browser.execute('document.getElementsByClassName(\'ViewMore\')[0].click()')
 			end
-			sleep 0.5 # pause to load javascript
+			sleep 0.05 # pause to load javascript
 
 			manga_info_list = []
 
@@ -58,61 +158,40 @@ module Source
 
 				scrape_chapter = item.css('div.Label .ChapterLabel').text.strip
 				scrape_chapter_release = item.css('div.Label .DateLabel').text.strip
-				scrape_chapter_origin = item.css('div.Label a')[0]['href'].strip
+				chapter_origin = item.css('div.Label a')[0]['href'].strip
 
 				chapter_number = parse_chapter_number(scrape_chapter)
 				chapter_release = parse_chapter_release(scrape_chapter_release)
 
 				$DB.transaction do
-					manga_info = $DB[:manga]
-					.where(title: manga_title)
-					.join(:source_manga, manga_id: :manga_id)
-					.where(source_id: @source_id).first
-
+					manga_info = Helper.find_manga_by_title(@source_id, manga_title)
 					manga_id = manga_info ? manga_info[:manga_id] : SecureRandom.hex(8)
-
 					if manga_info
-						manga_info
+						$DB[:manga]
+						.where(manga_id: manga_id)
 						.update({
+							manga_id: manga_id,
 							cover: manga_cover,
+							updated: DateTime.now
 						})
 					else
-						$DB[:manga]
-						.on_duplicate_key_update()
-						.insert({
+						Helper.store_manga(@source_id, {
 							manga_id: manga_id,
 							origin: manga_origin,
 							cover: manga_cover,
 							title: manga_title
 						})
-						$DB[:source_manga]
-						.insert({
-							manga_id: manga_id,
-							source_id: @source_id,
-						})
 					end
 
-					chapter_info = $DB[:chapter]
-					.where(chapter_n: chapter_number)
-					.join(:manga_chapter, chapter_id: :chapter_id)
-					.where(manga_id: manga_id).first
-
+					chapter_info = Helper.find_chapter_by_number(manga_id, chapter_number)
 					chapter_id = chapter_info ? chapter_info[:chapter_id] : SecureRandom.hex(8)
-
 					if !chapter_info
-						$DB[:chapter]
-						.on_duplicate_key_update()
-						.insert({
+						Helper.store_manga_chapter(manga_id, {
 							chapter_id: chapter_id,
-							origin: scrape_chapter_origin,
+							origin: chapter_origin,
 							chapter_n: chapter_number,
-							released: chapter_release
-						})
-						$DB[:manga_chapter]
-						.on_duplicate_key_update()
-						.insert({
-							chapter_id: chapter_id,
-							manga_id: manga_id,
+							released: chapter_release,
+							updated: DateTime.now
 						})
 					end
 				end
@@ -120,12 +199,12 @@ module Source
 		end
 
 		def parse_chapter_number(chapter_n)
-			chapter_number = chapter_n.split(/ /, 2)
-			return begin Integer(chapter_number[1]) rescue 0 end
+			chapter_number = chapter_n.split(' ')
+			return begin Float(chapter_number[1]) rescue 0 end
 		end
 
 		def parse_chapter_release(chapter_r)
-			release_string = chapter_r.split(/ /, 2)
+			release_string = chapter_r.split(' ', 2)
 			string_n = release_string[0]
 			frame = release_string[1].split[0]
 			number = begin Integer(string_n) rescue false end
@@ -149,6 +228,22 @@ module Source
 			end
 		end
 
+		def parse_chapter_status(status_t)
+			if status_t.include?('Cancelled')
+				return "cancelled"
+			elsif status_t.include?('Complete')
+				return "complete"
+			elsif status_t.include?('Discontinued')
+				return "discontinued"
+			elsif status_t.include?('Hiatus')
+				return "hiatus"
+			elsif status_t.include?('Ongoing')
+				return "ongoing"
+			else
+				return "unknown"
+			end
+		end
+
 		def cache_all
 			browser = Ferrum::Browser.new({timeout: 20})
 			browser.go_to("#{@origin}/directory")
@@ -164,8 +259,13 @@ module Source
 				}
 			end
 
+			current = 0
 			completed = []
 			for page in page_list
+				current+=1
+				if current < 890
+					next
+				end
 				retrys = 0
 				begin
 					source = $DB[:source].where(alias: @alias).first
@@ -281,6 +381,8 @@ module Source
 					retrys+=1
 					if retrys < 3
 						retry
+					else
+						next
 					end
 				end
 				File.open("db/log_cache_all.json","w") do |f|
@@ -298,23 +400,6 @@ module Source
 
 		def getManga(manga_id)
 			return @origin
-		end
-		
-
-		def parse_status(_status)
-			if _status.include?('Cancelled')
-				return "cancelled"
-			elsif _status.include?('Complete')
-				return "complete"
-			elsif _status.include?('Discontinued')
-				return "discontinued"
-			elsif _status.include?('Hiatus')
-				return "hiatus"
-			elsif _status.include?('Ongoing')
-				return "ongoing"
-			else
-				return "unknown"
-			end
 		end
 	end
 end
