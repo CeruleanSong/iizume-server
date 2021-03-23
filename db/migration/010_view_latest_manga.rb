@@ -2,6 +2,7 @@ Sequel.migration do
 	change do
 		create_or_replace_view(:latest_manga, "
 			SELECT 
+				source_id,
 				manga_id,
 				chapter_id,
 				chapter_n,

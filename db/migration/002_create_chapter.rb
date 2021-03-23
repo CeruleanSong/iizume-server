@@ -13,14 +13,5 @@ Sequel.migration do
 			column(:created, 'datetime', { default: Sequel.function(:CURRENT_TIMESTAMP) })
 			column(:updated, 'timestamp', { default: Sequel.function(:CURRENT_TIMESTAMP) })
 		end
-		
-		run("
-			CREATE TRIGGER chapter_updated
-			BEFORE INSERT ON chapter
-			FOR EACH ROW
-			BEGIN
-				SET NEW.updated = CURRENT_TIMESTAMP;
-			END
-		")
 	end
 end
