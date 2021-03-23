@@ -32,7 +32,7 @@ module Source
 		def isEnabled
 			return @enabled
 		end
-
+		
 		def cache_manga(manga_id)
 			manga_info = Helper.find_manga_by_title_or_id @source_id, manga_id
 
@@ -285,17 +285,6 @@ module Source
 			else
 				return "unknown"
 			end
-		end
-
-		def getLatest(page, limit)
-			$DB[:latest_manga]
-			.where(source_id: @source_id)
-			.limit(limit, page)
-			.all
-		end
-
-		def getManga(manga_id)
-			return @origin
 		end
 	end
 end
