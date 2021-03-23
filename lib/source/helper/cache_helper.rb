@@ -1,8 +1,8 @@
 module Helper
 	def Helper.find_chapter_by_number(manga_id, chapter_number)
 		return $DB[:chapter]
-		.where(chapter_n: chapter_number)
-		.join(:manga_chapter, chapter_id: :chapter_id)
+		.where(chapter_n: (chapter_number-0.001)...(chapter_number+0.001))
+		.natural_join(:manga_chapter)
 		.where(manga_id: manga_id).first
 	end
 
