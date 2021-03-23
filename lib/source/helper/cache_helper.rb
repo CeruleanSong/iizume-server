@@ -45,16 +45,15 @@ module Helper
 	def Helper.store_tags(manga_id, tag_list)
 		for tag in tag_list
 			tag_data = $DB[:tag].where(title: tag).first
-			tag_id = tag_data ? tag_data[:tag_id] : 
+			tag_id = tag_data ? tag_data[:tag_id] : SecureRandom.hex(8)
 			if !tag_data
 				$DB[:tag].insert(
 					tag_id: tag_id,
 					title: tag
 				)
+				tag_data = $DB[:tag]
+				.where(tag_id: tag_id).first
 			end
-
-			tag_data = $DB[:tag]
-			.where(tag_id: tag_id).first
 	
 			manga_tag_info = $DB[:manga]
 			.natural_join(:manga_tag)

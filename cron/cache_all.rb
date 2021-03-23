@@ -13,7 +13,7 @@ threads = []
 sources = $DB[:source].select(:alias, :enabled).where(:enabled).all
 source_list = Source::SourceList.getSourceList
 for source in sources
-	threads << Thread.new { source_list["#{source[:alias]}"].cache_all }
+	threads << Thread.new { source_list["#{source[:alias]}"].cache_all(ARGV[0]) }
 end
 
 threads.each(&:join)
