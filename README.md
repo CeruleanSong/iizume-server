@@ -2,7 +2,7 @@
 
 
 <div align="center">
-<img src="res/repo/banner.png" alt='Project banner' height='100px'>
+<img src=".repo/icon.png" alt='Project banner' height='150px'>
 
 **free and open source API for browsing and downloading manga.**
 
