@@ -4,6 +4,7 @@ Sequel.migration do
 			SELECT 
 				source_id,
 				T1.manga_id,
+				manga.origin,
 				manga.cover,
 				manga.title,
 				manga.released,
