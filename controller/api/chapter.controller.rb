@@ -4,8 +4,6 @@ require_relative '../../lib/source/model/manga'
 module Controller
 	module Api
 		class ChapterController < Grape::API
-			prefix :chapter
-
 			desc 'Get chapters in manga by manga id.'
 			route [:get, :post], '/:manga_id' do
 				return "todo"

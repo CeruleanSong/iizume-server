@@ -8,12 +8,12 @@ module Controller
 		format :json
 		
 		desc 'Chapter controller.'
-		mount Api::ChapterController
+		mount Api::ChapterController => '/chapter'
 
 		desc 'Manga controller.'
-		mount Api::MangaController
+		mount Api::MangaController => '/manga'
 
 		desc 'Source controller.'
-		mount Api::SourceController
+		mount Api::SourceController => '/source'
 	end
 end
