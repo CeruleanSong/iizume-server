@@ -7,7 +7,4 @@ require_relative '../lib/source/source_list'
 
 Source::SourceList.load_module(ARGV[0])
 source_list = Source::SourceList.getSourceList
-source_list[ARGV[0]].cache_all(
-	Integer(ARGV[1] ? Integer(ARGV[1]) : 0),
-	Integer(ARGV[2] ? Integer(ARGV[2]) : 0)
-)
+print source_list[ARGV[0]].n_count
