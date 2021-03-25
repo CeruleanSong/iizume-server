@@ -7,6 +7,7 @@ Sequel.migration do
 				manga.origin,
 				manga.cover,
 				manga.title,
+				manga.partial,
 				manga.released,
 				manga.updated
 			FROM

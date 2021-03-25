@@ -5,8 +5,8 @@ Sequel.migration do
 		create_table?(:page) do
 			primary_key(:id, 'int(11)')
 			column(:page_id, 'varchar(16)', null: false, unique: true)
-			column(:origin, 'varchar(256)', null: false, unique: true)
-			column(:image, 'varchar(256)')
+			column(:origin, 'varchar(512)', null: false, unique: true)
+			column(:image, 'varchar(512)')
 			column(:page_n, 'float(3)')
 			column :created, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
 			column :updated, 'timestamp(6)', default: Sequel.function(:CURRENT_TIMESTAMP, 6)
