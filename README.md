@@ -18,19 +18,43 @@
 ## Getting Started
 
 ### Dependancies
-- Ruby >= 2.7.0
-- rake >= 13.0.0
-- bundler >= 2.2.0
-- rspec >= 3.0.0
 
+- [ruby](https://www.ruby-lang.org/en/) >= 2.7.0
+- [golang](https://golang.org/) >= 1.14.0
+#### Tools
+- [rake](https://ruby.github.io/rake/) >= 13.0.0
+- [bundler](https://bundler.io/) >= 2.2.0
+- [rspec](https://rspec.info/) >= 3.0.0
+#### Other
+- [MySQL](https://www.mysql.com/) or [MariaDB](https://mariadb.org/)
 ### Installing
-Install all of the required libraires using bundler:
-```
+
+#### 1. Download required libraries.
+```sh
+# Install all ruby libraries using `bundler`:
 bundle install
+
+# Install all golang libraries using `go install`:
+go install
+```
+
+#### 2. Configure database connection (MySQL or MariaDB).
+Create a file `db_config.yml` in the `db` directory. Complete it using `db/db_config_example.yml` as an example.
+```sh
+# create db configuration
+touch db/db_config.yml
+# edit db configuration
+vim db/db_config.yml
 ```
 
 ### Running
-Run the application using the rake task or bundler
+
+#### 1. Start cron jobs
+```sh
+# TODO
+```
+
+#### 2. Run the application using the rake task or with bundler
 ```sh
 rake
 # or
@@ -61,4 +85,4 @@ Please see [CREDITS.md](CREDITS.md) for a in depth view.
 
 ## License
 
-This project is licensed under the **GPL-3.0** License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the **GPL-3.0** License - see the [LICENSE](LICENSE) file for details.
