@@ -2,6 +2,7 @@ require 'nokogiri'
 require 'securerandom'
 
 require_relative '../helper/cache_helper'
+require_relative '../helper/log_helper'
 
 module Source
 	def self.create(source_id)
@@ -34,7 +35,7 @@ module Source
 		end
 		
 		def cache_manga(manga_id)
-			manga_info = Helper.find_manga_by_title_or_id @source_id, manga_id
+			manga_info = Helper::Cache.find_manga_by_title_or_id @source_id, manga_id
 
 			if manga_info
 				browser = Ferrum::Browser.new({timeout: 20})
@@ -86,7 +87,7 @@ module Source
 						updated: DateTime.now
 					})
 
-					Helper.store_tags(manga_id, tag_list)
+					Helper::Cache.store_tags(manga_id, tag_list)
 				end
 			else
 				return nil
@@ -94,7 +95,7 @@ module Source
 		end
 
 		def cache_manga_chapters(manga_id)
-			manga_info = Helper.find_manga_by_title_or_id @source_id, manga_id
+			manga_info = Helper::Cache.find_manga_by_title_or_id @source_id, manga_id
 
 			if manga_info
 				browser = Ferrum::Browser.new({timeout: 20})
@@ -122,10 +123,10 @@ module Source
 						chapter_release = parse_chapter_release(scape_release)
 					end
 
-					chapter_info = Helper.find_chapter_by_number(manga_id, chapter_number)
+					chapter_info = Helper::Cache.find_chapter_by_number(manga_id, chapter_number)
 					chapter_id = chapter_info ? chapter_info[:chapter_id] : SecureRandom.hex(8)
 					if !chapter_info
-						Helper.store_manga_chapter(manga_id, {
+						Helper::Cache.store_manga_chapter(manga_id, {
 							chapter_id: chapter_id,
 							origin: chapter_origin,
 							chapter_n: chapter_number,
@@ -137,7 +138,7 @@ module Source
 			end
 		end
 
-		def cache_latest(n_page = 2)
+		def cache_latest(start = 1, limit = 0)
 			browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 			browser.go_to("#{@origin}")
 			sleep 0.05 # pause to load javascript
@@ -151,7 +152,18 @@ module Source
 
 			doc = Nokogiri::HTML(browser.body)
 			row = doc.css('div.LatestChapters div.row.Chapter')
+
+			row_count = 0
 			for item in row
+				if((limit <= 0) || (current_row < (start + limit)))
+					current_row+=1
+					if(current_row <= start)
+						next
+					end
+				else
+					break
+				end
+
 				manga_origin = item.css('div.Image a')[0]['href'].strip
 				manga_cover = item.css('div.Image a img')[0]['src'].strip
 				manga_title = item.css('div.Label .SeriesName').text.strip
@@ -164,7 +176,7 @@ module Source
 				chapter_release = parse_chapter_release(scrape_chapter_release)
 
 				$DB.transaction do
-					manga_info = Helper.find_manga_by_title(@source_id, manga_title)
+					manga_info = Helper::Cache.find_manga_by_title(@source_id, manga_title)
 					manga_id = manga_info ? manga_info[:manga_id] : SecureRandom.hex(8)
 					if manga_info
 						$DB[:manga]
@@ -175,7 +187,7 @@ module Source
 							updated: DateTime.now
 						})
 					else
-						Helper.store_manga(@source_id, {
+						Helper::Cache.store_manga(@source_id, {
 							manga_id: manga_id,
 							origin: manga_origin,
 							cover: manga_cover,
@@ -183,10 +195,10 @@ module Source
 						})
 					end
 
-					chapter_info = Helper.find_chapter_by_number(manga_id, chapter_number)
+					chapter_info = Helper::Cache.find_chapter_by_number(manga_id, chapter_number)
 					chapter_id = chapter_info ? chapter_info[:chapter_id] : SecureRandom.hex(8)
 					if !chapter_info
-						Helper.store_manga_chapter(manga_id, {
+						Helper::Cache.store_manga_chapter(manga_id, {
 							chapter_id: chapter_id,
 							origin: chapter_origin,
 							chapter_n: chapter_number,
@@ -198,47 +210,79 @@ module Source
 			end
 		end
 
-		def cache_all(start = 0)
+		def cache_all(start = 1, limit = 0)
+			# print start, " --- ", limit, "\n"
 			browser = Ferrum::Browser.new({timeout: 20})
 			browser.go_to("#{@origin}/directory")
-			sleep 2 # pause to load javascript
+			sleep 5 # pause to load javascript
 
+			complete_list = []
+			fail_list = []
+			current_row = 0
 			dir = Nokogiri::HTML(browser.body)
 			dir.css('div.top-15 a').each do |link|
-				manga_row = Nokogiri::HTML(link[:title])
-				tags_and_status = manga_row.xpath('//div').text.split(':')
-
-				manga_link = link['href']
-				manga_title = link.text.strip
-				manga_cover = manga_row.xpath('//img')[0][:src]
-				manga_status = parse_manga_status(tags_and_status[1])
-
-				manga_data = Helper.find_manga_by_title_or_id(@source_id, manga_title)
-
-				tag_list = []
-				for tag in tags_and_status[2].split(',')
-					tag_list << tag.strip
-				end
-
-				manga_id = manga_data ? manga_data[:manga_id] : SecureRandom.hex(8)
-				manga_payload = {
-					manga_id: manga_id,
-					origin: manga_link,
-					title: manga_title,
-					cover: manga_cover,
-					status_scan: manga_status,
-					updated: DateTime.now
-				}
-				if manga_data
-					$DB[:manga]
-					.where(manga_id: manga_id)
-					.update(manga_payload)
+				if((limit <= 0) || (current_row < (start + limit)))
+					current_row+=1
+					if(current_row <= start)
+						next
+					end
 				else
-					Helper.store_manga(@source_id, manga_payload)
+					break
 				end
 
-				Helper.store_tags(manga_id, tag_list)
+				begin
+					manga_row = Nokogiri::HTML(link[:title])
+					tags_and_status = manga_row.xpath('//div').text.split(':')
+
+					manga_link = link['href']
+					manga_title = link.text.strip
+					manga_cover = manga_row.xpath('//img')[0][:src]
+					manga_status = parse_manga_status(tags_and_status[1])
+
+					manga_data = Helper::Cache.find_manga_by_origin_or_title(@source_id, manga_link, manga_title)
+
+					tag_list = []
+					for tag in tags_and_status[2].split(',')
+						tag_list << tag.strip
+					end
+
+					manga_id = manga_data ? manga_data[:manga_id] : SecureRandom.hex(8)
+					manga_payload = {
+						manga_id: manga_id,
+						origin: manga_link,
+						title: manga_title,
+						cover: manga_cover,
+						status_scan: manga_status,
+						updated: DateTime.now
+					}
+					complete_list << manga_payload
+					if manga_data
+						$DB[:manga]
+						.where(manga_id: manga_id)
+						.update(manga_payload)
+					else
+						Helper::Cache.store_manga(@source_id, manga_payload)
+					end
+					Helper::Cache.store_tags(manga_id, tag_list)
+				rescue
+				end
 			end
+			if fail_list.length > 0
+				Helper::Log.create_fail_log(JSON.pretty_generate(complete_list.last))
+			end
+			Helper::Log.create_log(complete_list)
+		end
+
+		def n_count
+			browser = Ferrum::Browser.new({timeout: 20})
+			browser.go_to("#{@origin}/directory")
+			sleep 1 # pause to load javascript
+
+			doc = Nokogiri::HTML(browser.body)
+			scrape_count = doc.css('div.Box div.BoxHeader')[0].text.strip
+			string_count = scrape_count.split("(").last.split(")")[0]
+			manga_count = Integer(string_count.gsub!(",", ""))
+			return manga_count
 		end
 
 		def parse_chapter_number(chapter_n)
