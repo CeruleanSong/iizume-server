@@ -6,4 +6,5 @@ db_config.yml
 
 node_modules/
 
+logs/
 log_*.json
