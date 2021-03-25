@@ -32,8 +32,31 @@ module Source
 						})
 					end
 				end
-
 			end
+		end
+
+		def self.load_module(module_name)
+			loaded_module = require_relative "modules/#{module_name}"
+
+			if loaded_module
+				source_exists = $DB[:source].select(:alias, :source_id).where(alias: module_name).first
+				source_id = source_exists ? source_exists[:source_id] : SecureRandom.hex(8)
+				
+				@@source_list[module_name] = Source::create(source_id)
+				@@source_types.push(module_name)
+
+				if !source_exists
+					$DB[:source].insert({
+						source_id: source_id,
+						origin: @@source_list[module_name].getOrigin,
+						title: @@source_list[module_name].getTitle,
+						alias: @@source_list[module_name].getAlias,
+						enabled: @@source_list[module_name].isEnabled,
+					})
+				end
+			end
+
+			return loaded_module
 		end
 
 		def self.getSourceTypes
