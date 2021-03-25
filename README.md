@@ -47,6 +47,12 @@ touch db/db_config.yml
 vim db/db_config.yml
 ```
 
+### Building
+#### 1. Build all golang scripts
+```sh
+# TODO
+```
+
 ### Running
 
 #### 1. Start cron jobs

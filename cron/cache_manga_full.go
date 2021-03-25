@@ -13,10 +13,10 @@ func worker(wg *sync.WaitGroup, limit int, gap int) {
 	defer wg.Done()
 
 	out, err := exec.Command(
-		"./cron/cache_manga_partial.rb",
+		"./cron/cache_manga_full.rb",
 		os.Args[1],
-		strconv.Itoa(gap),
 		strconv.Itoa(limit),
+		strconv.Itoa(gap),
 	).Output()
 	if err != nil {
 		log.Fatal(err)

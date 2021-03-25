@@ -35,7 +35,7 @@ module Source
 		end
 		
 		def cache_manga(manga_id)
-			manga_info = Helper::Cache.find_manga_by_id(@source_id, manga_id)
+			manga_info = Helper::Cache.find_manga_by_title_or_id @source_id, manga_id
 
 			if manga_info
 				browser = Ferrum::Browser.new({timeout: 20})
