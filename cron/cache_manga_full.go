@@ -9,14 +9,14 @@ import (
 	"sync"
 )
 
-func worker(wg *sync.WaitGroup, limit int, gap int) {
+func worker(wg *sync.WaitGroup, gap int, limit int) {
 	defer wg.Done()
 
 	out, err := exec.Command(
 		"./cron/cache_manga_full.rb",
 		os.Args[1],
-		strconv.Itoa(limit),
 		strconv.Itoa(gap),
+		strconv.Itoa(limit),
 	).Output()
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	out, err := exec.Command(
-		"./cron/n_count.rb",
+		"./cron/n_count_partial.rb",
 		os.Args[1],
 	).Output()
 	if err != nil {
@@ -47,7 +47,7 @@ func main() {
 	manga_count, _ := strconv.Atoi(fmt.Sprintf("%s", out))
 	for i := 0; i < manga_count; i += limit {
 		wg.Add(1)
-		go worker(&wg, limit, i)
+		go worker(&wg, i, limit)
 	}
 
 	wg.Wait()

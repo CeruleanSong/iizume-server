@@ -337,6 +337,16 @@ module Source
 			return manga_count
 		end
 
+		def n_count_partial
+			count = $DB["
+					SELECT COUNT(*) AS count FROM manga_by_source
+					WHERE partial = true AND source_id = ?
+				",
+				@source_id
+			]
+			return count[:count][:count]
+		end
+
 		def parse_chapter_number(chapter_n)
 			chapter_number = chapter_n.split(' ')
 			return begin Float(chapter_number[1]) rescue 0 end
