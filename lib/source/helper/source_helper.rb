@@ -34,7 +34,6 @@ module Helper
 				ORDER BY T3.released , T3.updated DESC
 				LIMIT ? OFFSET ?
 			", limit, page*limit)
-			
 		end
 	end
 end

@@ -35,7 +35,7 @@ module Source
 		end
 		
 		def cache_manga(manga_id)
-			manga_info = Helper::Cache.find_manga_by_title_or_id @source_id, manga_id
+			manga_info = Helper::Cache.find_manga_by_id(@source_id, manga_id)
 
 			if manga_info
 				browser = Ferrum::Browser.new({timeout: 20})
@@ -91,6 +91,69 @@ module Source
 				end
 			else
 				return nil
+			end
+		end
+
+		def cache_manga_multiple(manga_list)
+			browser = Ferrum::Browser.new({timeout: 20})
+			for manga in manga_list do
+				manga_id = manga[:manga_id]
+				manga_info = Helper::Cache.find_manga_by_id(@source_id, manga_id)
+
+				if manga_info
+					browser.go_to("#{@origin}#{manga_info[:origin]}")
+					# sleep 0.25 # pause to load javascript
+					
+					doc = Nokogiri::HTML(browser.body)
+					rows = doc.css('li.list-group-item')
+					
+					# alternate name(s) row 
+					alt_offset = (rows[2].css("span").text.include? "Alternate") ? 0 : 1
+					# offical tl row 
+					otl_offset = (rows[7-alt_offset].css("span").text.include? "Official") ? 0 : 1
+
+					manga_cover = doc.css('div.col-3 img')[0]['src']
+
+					manga_author = rows[3-alt_offset].css("a")[0].text
+					has_artist = rows[3-alt_offset].css("a").length > 1
+					manga_artist = has_artist ? rows[3-alt_offset].css("a")[1].text : nil
+
+					manga_description = rows[10-alt_offset-otl_offset].css("div").text
+
+					tag_list = []
+					for tag in rows[4-alt_offset].css("a")
+						tag_list << tag.text
+					end
+
+					manga_type = rows[5-alt_offset].css("a").text
+					manga_released = Time.new(Integer(rows[6-alt_offset].css("a").text))
+
+					status_origin = rows[8-alt_offset-otl_offset].css("a")[0].text
+					manga_status_origin = parse_manga_status(status_origin)
+					status_scan = rows[8-alt_offset-otl_offset].css("a")[1].text
+					manga_status_scan = parse_manga_status(status_scan)
+
+					$DB.transaction do
+						$DB[:manga]
+						.where(manga_id: manga_id)
+						.update({
+							manga_id: manga_info[:manga_id],
+							author: manga_author,
+							artist: manga_artist,
+							description: manga_description,
+							status_origin: manga_status_origin,
+							status_scan: manga_status_scan,
+							type: manga_type,
+							released: manga_released,
+							partial: false,
+							updated: DateTime.now
+						})
+
+						Helper::Cache.store_tags(manga_id, tag_list)
+					end
+				else
+					return nil
+				end
 			end
 		end
 
@@ -201,7 +264,6 @@ module Source
 		end
 
 		def cache_all(start = 1, limit = 0)
-			# print start, " --- ", limit, "\n"
 			browser = Ferrum::Browser.new({timeout: 20})
 			browser.go_to("#{@origin}/directory")
 			sleep 5 # pause to load javascript
