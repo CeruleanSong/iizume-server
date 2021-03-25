@@ -138,7 +138,7 @@ module Source
 			end
 		end
 
-		def cache_latest(start = 1, limit = 0)
+		def cache_latest(n_page)
 			browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 			browser.go_to("#{@origin}")
 			sleep 0.05 # pause to load javascript
@@ -153,17 +153,7 @@ module Source
 			doc = Nokogiri::HTML(browser.body)
 			row = doc.css('div.LatestChapters div.row.Chapter')
 
-			row_count = 0
 			for item in row
-				if((limit <= 0) || (current_row < (start + limit)))
-					current_row+=1
-					if(current_row <= start)
-						next
-					end
-				else
-					break
-				end
-
 				manga_origin = item.css('div.Image a')[0]['href'].strip
 				manga_cover = item.css('div.Image a img')[0]['src'].strip
 				manga_title = item.css('div.Label .SeriesName').text.strip
@@ -176,7 +166,7 @@ module Source
 				chapter_release = parse_chapter_release(scrape_chapter_release)
 
 				$DB.transaction do
-					manga_info = Helper::Cache.find_manga_by_title(@source_id, manga_title)
+					manga_info = Helper::Cache.find_manga_by_origin_or_title(@source_id, manga_origin, manga_title)
 					manga_id = manga_info ? manga_info[:manga_id] : SecureRandom.hex(8)
 					if manga_info
 						$DB[:manga]
