@@ -1,0 +1,14 @@
+{
+	"redis": {
+		"host": "redis.com",
+		"port": 11111,
+		"password": "password",
+		"db": 0
+	},
+	"mysql": {
+		"host": "db.dev",
+		"user": "username",
+		"password": "password",
+		"database": "database"
+	}
+}
