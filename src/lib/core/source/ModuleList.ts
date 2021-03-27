@@ -81,29 +81,40 @@ export const load_modules = () => {
 					});
 				};
 
-				const cache_all = (): Promise<boolean> => {
-					return new Promise((_res) => {
-						const limit = 2;
-						const start = 6047;
-						let operations = 0;
+				const cache_all = async (): Promise<boolean> => {
+					return await new Promise((res) => {
+						const data_list: any[] = [];
+						const limit = 1000;
+						let start = 0;
 						let success = false;
-						const run_loop = (limit, start) => {
-							exec(`ruby ./module/execute_module.rb ${title} ${JOB_TYPE.CACHE_ALL} ${limit} ${start}`,
-								async (err, stdout, stderr) => {
-									if(stderr || !source) {
-										_res(false);
-									} else {
-										const data = JSON.parse(stdout);
-										operations += data.length;
-										if(data.length > 0) {
-											success = await save_manga_list(source.source_id, data);
+						let _continue = true;
+						(async () => {
+							while(_continue) {
+								await new Promise((_res) => {
+									exec(`ruby ./module/execute_module.rb ${title}\
+										${JOB_TYPE.CACHE_ALL} ${limit} ${start}`,
+									async (err, stdout, stderr) => {
+										if(stderr || !source) {
+											_res(false);
 										} else {
-											_res((operations > 0) && success);
+											const data = JSON.parse(stdout);
+											if(data.length > 0) {
+												start+=limit;
+												data_list.push(...data);
+												_res(true);
+											} else {
+												_continue = false;
+												_res(true);
+											}
 										}
-									}
+									});
 								});
-						};
-						run_loop(limit, start);
+							}
+							if(source && data_list.length > 0) {
+								success = await save_manga_list(source.source_id, data_list);
+								res(success);
+							}
+						})();
 					});
 				};
 

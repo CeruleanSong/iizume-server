@@ -69,73 +69,82 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 	});
 };
 
-export const save_manga_list = async (_source_id: string, _manga_list: MangaModel[]) => {
+export const save_manga_list = async (source_id: string, manga_list: MangaModel[]) => {
 	return new Promise<boolean>((res) => {
-		if(_source_id && _manga_list.length > 0) {
+		if(source_id && manga_list.length > 0) {
 			const mysql = getConnection('mysql');
 			const manga_repo = mysql.manager.getRepository(MangaModel);
 			const manga_source_repo = mysql.manager.getRepository(MangaSourceModel);
 
-			const manga_source_list: MangaSourceModel[] = [];
-			const manga_list: MangaModel[] = [];
+			const new_manga_source_list: MangaSourceModel[] = [];
+			const new_manga_list: MangaModel[] = [];
 
 			const manga_tag_list: any[] = [];
 			const manga_chapter_list: any[] = [];
 			
 			(async () => {
-				for(const i in _manga_list) {
+				for(const i in manga_list) {
 					await manga_repo.findOne({
 						where: {
-							origin: _manga_list[i].origin
+							origin: manga_list[i].origin
 						}
 					}).then(async (db_manga) => {
 						const manga_id = db_manga ? db_manga.manga_id : uid(16);
-						const new_manga = {
-							...new MangaModel(),
-							...db_manga,
-							..._manga_list[i],
-							manga_id
-						};
-						manga_list.push(new_manga);
+						if(!db_manga) {
+							const new_manga = {
+								...new MangaModel(),
+								...manga_list[i],
+								manga_id
+							};
+							new_manga_list.push(new_manga);
+						}
 						await manga_source_repo.findOne({
 							where: {
 								manga_id: manga_id
 							}
 						}).then((db_manga_source) => {
-							manga_source_list.push({
-								...new MangaSourceModel(),
-								...db_manga_source,
-								source_id: _source_id,
-								manga_id
-							});
+							if(!db_manga_source) {
+								new_manga_source_list.push({
+									...new MangaSourceModel(),
+									source_id,
+									manga_id
+								});
+							}
 						});
-						const tags: string[] = (_manga_list[i] as any).tags;
+						const tags: string[] = (manga_list[i] as any).tags;
 						if(tags) {
 							manga_tag_list.push({
 								manga_id,
 								tags
 							});
 						}
-						const chapters: ChapterModel[] = (_manga_list[i] as any).chapters;
+						const chapters: ChapterModel[] = (manga_list[i] as any).chapters;
 						if(chapters) {
 							manga_chapter_list.push({
 								manga_id,
 								chapters
 							});
 						}
-						mysql.transaction(async (transaction) => {
-							await transaction.save(MangaModel, manga_list);
-							await transaction.save(MangaSourceModel, manga_source_list);
-						}).then(async () => {
-							for(const i in manga_chapter_list) {
-								await save_chapter_list(manga_id, manga_chapter_list[i].chapters);
-							}
-							for(const i in manga_tag_list) {
-								await save_tag_list(manga_id, manga_tag_list[i].tags);
-							}
-						});
 					});
 				}
+				await mysql.transaction(async (transaction) => {
+					await transaction.save(MangaModel, new_manga_list, {
+						chunk: 500
+					});
+				}).then(async () => {
+					await mysql.transaction(async (transaction) => {
+						await transaction.save(MangaSourceModel, new_manga_source_list, {
+							chunk: 500
+						});
+					});
+					for(const i in manga_chapter_list) {
+						await save_chapter_list(manga_chapter_list[i].manga_id, manga_chapter_list[i].chapters);
+					}
+					for(const i in manga_tag_list) {
+						await save_tag_list(manga_tag_list[i].manga_id, manga_tag_list[i].tags);
+					}
+					res(true);
+				});
 			})();
 		} else {
 			res(false);
