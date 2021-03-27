@@ -8,11 +8,42 @@ export const save_page_list = async (_chapter_id: string, _page_list: PageModel[
 	});
 };
 
-export const save_chapter_list = async (_manga_id: string, _chapter_list: ChapterModel[]) => {
-	// const chapter_repo = mysql.manager.getRepository(ChapterModel);
-	// const manga_repo = mysql.manager.getRepository(MangaModel);
+export const save_chapter_list = async (manga_id: string, chapter_list: ChapterModel[]) => {
 	return new Promise<boolean>((res) => {
-		res(false);
+		if(manga_id && chapter_list.length > 0) {
+			const mysql = getConnection('mysql');
+			const chapter_repo = mysql.manager.getRepository(ChapterModel);
+
+			const new_chapter_list: ChapterModel[] = [];
+
+			(async () => {
+				for(const i in chapter_list) {
+					await chapter_repo.findOne({ 
+						where: { 
+							manga_id: manga_id,
+							chapter_number: chapter_list[i].chapter_number
+						} 
+					}).then(async (db_chapter) => {
+						const chapter_id = db_chapter ? db_chapter.chapter_id : uid(16);
+						if(!db_chapter) {
+							new_chapter_list.push({
+								...new ChapterModel(),
+								...chapter_list[i],
+								chapter_id,
+								manga_id
+							});
+						}
+					});
+				}
+				mysql.transaction(async (transaction) => {
+					await transaction.save(ChapterModel, new_chapter_list);
+				}).then(() => {
+					res(true);
+				});
+			})();
+		} else {
+			res(false);
+		}
 	});
 };
 
