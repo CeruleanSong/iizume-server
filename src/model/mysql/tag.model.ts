@@ -4,7 +4,7 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 @Index([ 'tag_id', 'title' ])
 export default class Tag {
 	@PrimaryGeneratedColumn()
-	id!: number;
+	id?: number;
 
 	@Column({ type: 'varchar', length: 16, nullable: false, unique: true })
 	tag_id!: string;

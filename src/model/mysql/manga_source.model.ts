@@ -18,9 +18,9 @@ export default class MangaSource {
 	
     @OneToOne(() => MangaModel, manga => manga.manga_id)
 	@JoinColumn({ name: 'manga_id', referencedColumnName: 'manga_id'  })
-	manga!: MangaModel;
+	manga?: MangaModel;
 
     @ManyToMany(() => SourceModel, source => source.source_id)
 	@JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })
-	source!: SourceModel;
+	source?: SourceModel;
 }

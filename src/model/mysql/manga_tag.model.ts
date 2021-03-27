@@ -1,6 +1,6 @@
-import { Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
+import { Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { MangaModel, SourceModel, TagModel } from '.';
+import { MangaModel, TagModel } from '.';
 
 @Entity()
 @Index([ 'manga_id', 'tag_id' ])
@@ -15,9 +15,9 @@ export default class MangaTag {
 
 	@ManyToOne(() => MangaModel, manga => manga.manga_id)
 	@JoinColumn({ name: 'manga_id', referencedColumnName: 'manga_id'  })
-	manga!: MangaModel;
+	manga?: MangaModel;
 
-	@OneToOne(() => TagModel, tag => tag.tag_id)
+	@ManyToOne(() => TagModel, tag => tag.tag_id)
 	@JoinColumn({ name: 'tag_id', referencedColumnName: 'tag_id' })
-	tag!: SourceModel;
+	tag?: TagModel;
 }
