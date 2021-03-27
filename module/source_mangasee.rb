@@ -3,11 +3,9 @@ require 'ferrum'
 require 'nokogiri'
 
 module Source
-	@config = JSON.load File.new("./module/source_mangasee.json")
-
 	def self.cache_latest
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
-		browser.go_to(@config['origin'])
+		browser.go_to(CONFIG['origin'])
 		sleep 0.25 # pause to load javascript
 
 		for index in 0..7
@@ -47,6 +45,50 @@ module Source
 		puts JSON.pretty_generate(manga_list)
 	end
 
+	def self.cache_all(start = 1, limit = 0)
+		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+		browser.go_to("#{CONFIG['origin']}/directory")
+		sleep 2 # pause to load javascript
+
+		manga_list = []
+
+		current_row = 0
+		dir = Nokogiri::HTML(browser.body)
+		dir.css('div.top-15 a').each do |link|
+			if((limit <= 0) || (current_row < (start + limit)))
+				current_row+=1
+				if(current_row <= start)
+					next
+				end
+			else
+				break
+			end
+
+			manga_row = Nokogiri::HTML(link[:title])
+			tags_and_status = manga_row.xpath('//div').text.split(':')
+
+			manga_origin = link['href']
+			manga_cover = manga_row.xpath('//img')[0][:src]
+			manga_title = link.text.strip
+			manga_status = parse_manga_status(tags_and_status[1])
+
+			manga_tag_list = []
+			for tag in tags_and_status[2].split(',')
+				manga_tag_list << tag.strip
+			end
+
+			manga_payload = {
+				origin: manga_origin,
+				title: manga_title,
+				cover: manga_cover,
+				status_scan: manga_status,
+				tags: manga_tag_list,
+			}
+			manga_list << manga_payload
+		end
+		puts JSON.pretty_generate(manga_list)
+	end
+
 	#####################################################################
 	#
 	#					Helper Functions Below Here
@@ -63,7 +105,6 @@ module Source
 		string_n = release_string[0]
 		frame = release_string[1].split[0]
 		number = begin Integer(string_n) rescue false end
-
 		if number
 			if frame.include? "minute"
 				return Time.now - number
