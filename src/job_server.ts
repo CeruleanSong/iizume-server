@@ -179,7 +179,6 @@ queue.process((payload: any, done: Queue.DoneCallback<unknown>) => {
 			mongo_repo.save(db_job);
 		}
 	})();
-
 	switch (payload.data.type)
 	{
 	case JOB_TYPE.CACHE_MANGA:

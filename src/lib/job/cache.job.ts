@@ -47,7 +47,17 @@ export const cache_latest = async (payload: Job, done: any): Promise<void> => {
 };
 
 export const cache_all = async (payload: Job, done: any): Promise<void> => {
-	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
-	return;
+	const mysql = getConnection('mysql');
+	const source_repo = mysql.manager.getRepository(SourceModel);
+	const source = await source_repo.findOne({ where: { source_id: payload.target } });
+	if(source) {
+		const success = await modules[source.title].cache_all();
+		if(success) {
+			return done(null, payload);
+		} else {
+			return done(null, 'JOB_FAILED');
+		}
+	} else {
+		return done(Error('UNKNOWN_SOURCE'));
+	}
 };
