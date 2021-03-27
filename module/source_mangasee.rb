@@ -45,10 +45,10 @@ module Source
 		puts JSON.pretty_generate(manga_list)
 	end
 
-	def self.cache_all(start = 1, limit = 0)
+	def self.cache_all(limit = 0, start = 1)
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 		browser.go_to("#{CONFIG['origin']}/directory")
-		sleep 2 # pause to load javascript
+		sleep 4.0 # pause to load javascript
 
 		manga_list = []
 
