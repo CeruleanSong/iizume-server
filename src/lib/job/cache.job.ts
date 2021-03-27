@@ -8,26 +8,25 @@ const modules = ModuleList;
 
 export const cache_manga = async (payload: Job, done: any): Promise<void> => {
 	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB FAILED'));
+	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
 	return;
 };
 
 export const cache_chapter_list = async (payload: Job, done: any): Promise<void> => {
 	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB FAILED'));
+	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
 	return;
-
 };
 
 export const cache_page_list = async (payload: Job, done: any): Promise<void> => {
 	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB FAILED'));
+	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
 	return;
 };
 
 export const cache_hot = async (payload: Job, done: any): Promise<void> => {
 	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB FAILED'));
+	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
 	return;
 };
 
@@ -35,7 +34,6 @@ export const cache_latest = async (payload: Job, done: any): Promise<void> => {
 	const mysql = getConnection('mysql');
 	const source_repo = mysql.manager.getRepository(SourceModel);
 	const source = await source_repo.findOne({ where: { source_id: payload.target } });
-
 	if(source) {
 		const success = await modules[source.title].cache_latest();
 		if(success) {

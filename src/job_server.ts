@@ -2,7 +2,7 @@ import Queue from 'bee-queue';
 import Router from '@koa/router';
 import bodyParser from 'koa-bodyparser';
 import { uid } from 'uid/secure';
-import { Connection, createConnection } from 'typeorm';
+import { Connection, createConnection, getConnection } from 'typeorm';
 import Koa, { ParameterizedContext } from 'koa';
 
 import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel,
@@ -136,6 +136,7 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 		
 		job.on('succeeded', async (_result) => {
 			new_job.status = JOB_STATUS.COMPLETED;
+			new_job.end_time = new Date();
 			job_repo.save(new_job);
 
 			// eslint-disable-next-line no-console
@@ -144,6 +145,7 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 	
 		job.on('failed', async (_err) => {
 			new_job.status = JOB_STATUS.ERROR;
+			new_job.end_time = new Date();
 			job_repo.save(new_job);
 
 			// eslint-disable-next-line no-console
@@ -166,6 +168,18 @@ app.listen(config.job_server.port, () => {
  ************************************************/
 
 queue.process((payload: any, done: Queue.DoneCallback<unknown>) => {
+	(async () => {
+		const timestamp = new Date();
+		const mongo = getConnection('mongo');
+		const mongo_repo = mongo.manager.getMongoRepository(JobModel);
+		const db_job = await mongo_repo.findOne({ where: { job_id: payload.job_id } });
+		if(db_job) {
+			db_job.start_time = timestamp;
+			db_job.status = JOB_STATUS.STARTED;
+			mongo_repo.save(db_job);
+		}
+	})();
+
 	switch (payload.data.type)
 	{
 	case JOB_TYPE.CACHE_MANGA:
