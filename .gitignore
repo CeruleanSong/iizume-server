@@ -2,3 +2,4 @@ node_modules/
 config.json
 config.yml
 module/logs/
+_cloudflare.json
