@@ -1,5 +1,4 @@
-import { Chapter, Manga } from '.';
-
+import { ChapterModel, MangaModel } from 'model/mysql';
 export interface SourceModuleConfig {
 	origin: string;
 	title: string;
@@ -9,9 +8,9 @@ export interface SourceModuleConfig {
 }
 
 export interface SourceModule extends SourceModuleConfig {
-	cache_manga: (manga: Manga | Manga[]) => Promise<boolean>;
-	cache_chapter_list: (manga: Manga | Manga[]) => Promise<boolean>;
-	cache_page_list: (chapter: Chapter | Chapter[]) => Promise<boolean>;
+	cache_manga: (manga: MangaModel) => Promise<boolean>;
+	cache_chapter_list: (manga: MangaModel) => Promise<boolean>;
+	cache_page_list: (chapter: ChapterModel) => Promise<boolean>;
 	cache_hot: () => Promise<boolean>;
 	cache_latest: () => Promise<boolean>;
 	cache_all: () => Promise<boolean>;

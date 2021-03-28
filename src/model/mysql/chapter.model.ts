@@ -13,7 +13,7 @@ export default class Chapter {
 	@Column({ type: 'varchar', length: 16, nullable: false, unique: true })
 	chapter_id!: string;
 
-	@Column({ type: 'varchar', length: 16, nullable: false, unique: true })
+	@Column({ type: 'varchar', length: 16, nullable: false, unique: false })
 	manga_id!: string;
 
 	@Column({ type: 'varchar', length: 512, nullable: false, unique: true })
@@ -24,9 +24,6 @@ export default class Chapter {
 
 	@Column({ type: 'float', precision: 4, nullable: false })
 	chapter_number!: string;
-
-	@Column({ type: 'varchar', length: 512, nullable: true })
-	artist!: string;
 
 	@Column({ type: 'varchar', length: 32, nullable: true })
 	scanlator!: string;

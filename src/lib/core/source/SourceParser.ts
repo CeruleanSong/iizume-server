@@ -2,6 +2,36 @@ import { getConnection } from 'typeorm';
 import { uid } from 'uid/secure';
 import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel, TagModel } from '../../../model/mysql';
 
+export const save_manga = async (manga_id: string, manga: MangaModel) => {
+	return new Promise<boolean>((resolve) => {
+		const mysql = getConnection('mysql');
+		const update = {
+			...new MangaModel(),
+			cover: manga.cover,
+			title: manga.title,
+			author: manga.author,
+			artist: manga.artist,
+			status_origin: manga.status_origin,
+			status_scanlation: manga.status_scanlation,
+			type: manga.type,
+			description: manga.description,
+			full_sync: true,
+			release_date: manga.release_date
+		};
+		(async () => {
+			mysql.transaction(async (transaction) => {
+				await transaction.update(MangaModel, {
+					manga_id: manga_id
+				}, update);
+			}).then(() => {
+				resolve(true);
+			}).catch(() => {
+				resolve(false);
+			});
+		})();
+	});
+};
+
 export const save_page_list = async (_chapter_id: string, _page_list: PageModel[]) => {
 	return new Promise<boolean>((res) => {
 		res(false);
@@ -9,7 +39,7 @@ export const save_page_list = async (_chapter_id: string, _page_list: PageModel[
 };
 
 export const save_chapter_list = async (manga_id: string, chapter_list: ChapterModel[]) => {
-	return new Promise<boolean>((res) => {
+	return new Promise<boolean>((resolve) => {
 		if(manga_id && chapter_list.length > 0) {
 			const mysql = getConnection('mysql');
 			const chapter_repo = mysql.manager.getRepository(ChapterModel);
@@ -21,7 +51,7 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 					await chapter_repo.findOne({ 
 						where: { 
 							manga_id: manga_id,
-							chapter_number: chapter_list[i].chapter_number
+							origin: chapter_list[i].origin
 						} 
 					}).then(async (db_chapter) => {
 						const chapter_id = db_chapter ? db_chapter.chapter_id : uid(16);
@@ -38,11 +68,11 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 				mysql.transaction(async (transaction) => {
 					await transaction.save(ChapterModel, new_chapter_list);
 				}).then(() => {
-					res(true);
+					resolve(true);
 				});
 			})();
 		} else {
-			res(false);
+			resolve(false);
 		}
 	});
 };
@@ -86,12 +116,10 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 						});
 				}
 				mysql.transaction(async (transaction) => {
+					await transaction.save(MangaTagModel, new_manga_tag_list);
 					await transaction.save(TagModel, new_tag_list);
 				}).then(() => {
-					mysql.transaction(async (transaction) => {
-						await transaction.save(MangaTagModel, new_manga_tag_list);
-						res(true);
-					});
+					res(true);
 				});
 			})();
 		} else {

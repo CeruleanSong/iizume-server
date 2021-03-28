@@ -11,8 +11,6 @@ export interface Chapter {
 
 	chapter_number: string;
 
-	artist: string;
-
 	scanlator: string;
 
 	release_date: string;

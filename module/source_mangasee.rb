@@ -3,7 +3,109 @@ require 'ferrum'
 require 'nokogiri'
 
 module Source
-	def self.cache_latest
+	def self.read_manga(url)
+		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+		browser.go_to("#{CONFIG['origin']}#{url}")
+		sleep 0.25 # pause to load javascript
+
+		doc = Nokogiri::HTML(browser.body)
+		rows = doc.css('li.list-group-item')
+				
+		# alternate name(s) row 
+		alt_offset = (rows[2].css("span").text.include? "Alternate") ? 0 : 1
+		# offical tl row 
+		otl_offset = (rows[7-alt_offset].css("span").text.include? "Official") ? 0 : 1
+
+		manga_cover = doc.css('div.col-3 img')[0]['src']
+		manga_title = rows[0].text.strip #("a")[0].text
+		manga_author = rows[3-alt_offset].css("a")[0].text
+		has_artist = rows[3-alt_offset].css("a").length > 1
+		manga_artist = has_artist ? rows[3-alt_offset].css("a")[1].text : nil
+
+		manga_description = rows[10-alt_offset-otl_offset].css("div").text
+
+		tag_list = []
+		for tag in rows[4-alt_offset].css("a")
+			tag_list << tag.text
+		end
+
+		manga_type = rows[5-alt_offset].css("a").text
+		manga_released = Time.new(Integer(rows[6-alt_offset].css("a").text))
+
+		status_origin = rows[8-alt_offset-otl_offset].css("a")[0].text
+		manga_status_origin = parse_manga_status(status_origin)
+		status_scan = rows[8-alt_offset-otl_offset].css("a")[1].text
+		manga_status_scan = parse_manga_status(status_scan)
+
+		manga_payload = {
+			origin: url,
+			cover: manga_cover,
+			title: manga_title,
+			author: manga_author,
+			artist: manga_artist,
+			status_origin: manga_status_scan,
+			status_scan: manga_status_scan,
+			type: manga_type,
+			description: manga_description,
+			release_date: manga_released,
+		}
+		puts JSON.pretty_generate(manga_payload)
+	end
+
+	def self.read_chapter_list(url)
+		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+		browser.go_to("#{CONFIG['origin']}#{url}")
+		sleep 0.25 # pause to load javascript
+
+		browser.execute('
+			let button = document.getElementsByClassName(\'ShowAllChapters\')[0];
+			if(button) {
+				button.click();
+			}'
+		)
+		sleep 0.50 # pause to load javascript
+
+		doc = Nokogiri::HTML(browser.body)
+		rows = doc.css('div.list-group a')
+
+		chapter_list = []
+		for chapter in rows
+			chapter_origin = chapter['href'].strip
+
+			scrape_chapter = chapter.css('span')[0].text.strip
+			chapter_number = parse_chapter_number(scrape_chapter)
+
+			row = chapter.css('span')
+			if(row.length > 2)
+				frame = row[2].text.split(/ /)
+				time = frame[2].split(':')
+				if(frame[3] === 'PM')
+					hour = 12 + Integer(time[0])
+				else
+					hour = 12 + Integer(time[0])
+				end
+				chapter_release = Time.new(
+					Time.now.year,
+					Time.now.month,
+					Time.now.day - 1,
+					hour,
+					Integer(time[1])
+				)
+			elsif
+				scape_release = row[1].text.strip.split(/\//)
+				chapter_release = Time.new(scape_release[2], scape_release[0], scape_release[1])
+			end
+			
+			chapter_list << {
+				origin: chapter_origin,
+				chapter_number: chapter_number,
+				release_date: chapter_release,
+			}
+		end
+		puts JSON.pretty_generate(chapter_list)
+	end
+
+	def self.read_latest
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 		browser.go_to(CONFIG['origin'])
 		sleep 0.25 # pause to load javascript
@@ -11,7 +113,7 @@ module Source
 		for index in 0..7
 			browser.execute('document.getElementsByClassName(\'ViewMore\')[0].click()')
 		end
-		sleep 0.25 # pause to load javascript
+		sleep 0.5 # pause to load javascript
 
 		manga_list = []
 
@@ -45,7 +147,7 @@ module Source
 		puts JSON.pretty_generate(manga_list)
 	end
 
-	def self.cache_all(limit = 0, start = 1)
+	def self.read_directory(limit = 0, start = 1)
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 		browser.go_to("#{CONFIG['origin']}/directory")
 		sleep 4.0 # pause to load javascript
@@ -105,6 +207,7 @@ module Source
 		string_n = release_string[0]
 		frame = release_string[1].split[0]
 		number = begin Integer(string_n) rescue false end
+		puts release_string
 		if number
 			if frame.include? "minute"
 				return Time.now - number

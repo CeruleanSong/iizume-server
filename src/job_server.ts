@@ -94,7 +94,8 @@ const router = new Router();
  * services
  ************************************************/
 
-const queue = new Queue('job-queue',{
+const queue = new Queue('h5w456h', {
+    	storeJobs: false,
 	redis: {
 		...config.job_server.redis
 	}

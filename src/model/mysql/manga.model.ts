@@ -39,10 +39,10 @@ export default class Manga {
 	description!: string;
 	
 	@Column({ type: 'boolean', default: false })
-	full_sync!: string;
+	full_sync!: boolean;
 
 	@Column({ type: 'datetime', nullable: true })
-	release_date!: string;
+	release_date!: Date;
 
 	@CreateDateColumn()
 	create_date!: Date;

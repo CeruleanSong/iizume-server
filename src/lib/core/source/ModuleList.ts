@@ -1,20 +1,19 @@
-import { exec } from 'child_process';
 import { getConnection } from 'typeorm';
 import path from 'path';
 import { uid } from 'uid/secure';
+import { exec, spawn } from 'child_process';
 
 import { JOB_TYPE } from '../../../lib/job/Job';
-import { SourceModel } from '../../../model/mysql';
+import { SourceModule } from './';
 import { SourceModuleConfig } from './SourceModule';
-import { save_manga_list } from './SourceParser';
-import { Chapter, Manga, SourceModule } from './';
+import { ChapterModel, MangaModel, SourceModel } from '../../../model/mysql';
+import { save_chapter_list, save_manga, save_manga_list } from './SourceParser';
 
 const ModuleList: { [module: string]: SourceModule } = {};
 
 export const load_modules = () => {
 	const mysql = getConnection('mysql');
 	const source_repo = mysql.manager.getRepository(SourceModel);
-
 	exec('ls ./module/source_*.rb', (err, stdout) => {
 		stdout.split('\n').forEach(async (file) => {
 			if(file.length > 0) {
@@ -39,19 +38,73 @@ export const load_modules = () => {
 					source_repo.save(source);
 				}
 				
-				const cache_manga = (_manga: Manga | Manga[]): Promise<boolean> => {
-					return new Promise((_res) => {
-						_res(false);
+				const cache_manga = async (manga: MangaModel): Promise<boolean> => {
+					return await new Promise((resolve) => {
+						let output = '';
+						const cp = spawn('ruby', [
+							'./module/execute_module.rb',
+							title,
+							JOB_TYPE.CACHE_MANGA,
+							manga.origin
+						]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_manga(manga.manga_id, data)) {
+									resolve(true);
+								} else {
+									resolve(false);
+								}
+							} else {
+								resolve(true);
+							}
+						});
 					});
 				};
 
-				const cache_chapter_list = (_manga: Manga | Manga[]): Promise<boolean> => {
-					return new Promise((_res) => {
-						_res(false);
+				const cache_chapter_list = async (manga: MangaModel): Promise<boolean> => {
+					return await new Promise((resolve) => {
+						let output = '';
+						const cp = spawn('ruby', [
+							'./module/execute_module.rb',
+							title,
+							JOB_TYPE.CACHE_CHAPTER_LIST,
+							manga.origin
+						]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_chapter_list(manga.manga_id, data)) {
+									resolve(true);
+								} else {
+									resolve(false);
+								}
+							} else {
+								resolve(true);
+							}
+						});
 					});
 				};
 
-				const cache_page_list = (_chapter: Chapter | Chapter[]): Promise<boolean> => {
+				const cache_page_list = (_chapter: ChapterModel): Promise<boolean> => {
 					return new Promise((_res) => {
 						_res(false);
 					});
@@ -64,57 +117,59 @@ export const load_modules = () => {
 				};
 
 				const cache_latest = async (): Promise<boolean> => {
-					return await new Promise((_res) => {
-						exec(`ruby ./module/execute_module.rb ${title} ${JOB_TYPE.CACHE_LATEST}`,
-							async (err, stdout, stderr) => {
-								if(stderr || !source) {
-									_res(false);
+					return await new Promise((resolve) => {
+						let output = '';
+						const cp = spawn('ruby', [ './module/execute_module.rb', title, JOB_TYPE.CACHE_LATEST ]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_manga_list(source.source_id, data)) {
+									resolve(true);
 								} else {
-									const data = JSON.parse(stdout);
-									if(await save_manga_list(source.source_id, data)) {
-										_res(true);
-									} else {
-										_res(false);
-									}
+									resolve(false);
 								}
-							});
+							} else {
+								resolve(true);
+							}
+						});
 					});
 				};
 
 				const cache_all = async (): Promise<boolean> => {
-					return await new Promise((res) => {
-						const data_list: any[] = [];
-						const limit = 1000;
-						let start = 0;
-						let success = false;
-						let _continue = true;
-						(async () => {
-							while(_continue) {
-								await new Promise((_res) => {
-									exec(`ruby ./module/execute_module.rb ${title}\
-										${JOB_TYPE.CACHE_ALL} ${limit} ${start}`,
-									async (err, stdout, stderr) => {
-										if(stderr || !source) {
-											_res(false);
-										} else {
-											const data = JSON.parse(stdout);
-											if(data.length > 0) {
-												start+=limit;
-												data_list.push(...data);
-												_res(true);
-											} else {
-												_continue = false;
-												_res(true);
-											}
-										}
-									});
-								});
+					return await new Promise((resolve) => {
+
+						let output = '';
+						const cp = spawn('ruby', [ './module/execute_module.rb', title, JOB_TYPE.CACHE_ALL ]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_manga_list(source.source_id, data)) {
+									resolve(true);
+								} else {
+									resolve(false);
+								}
+							} else {
+								resolve(true);
 							}
-							if(source && data_list.length > 0) {
-								success = await save_manga_list(source.source_id, data_list);
-								res(success);
-							}
-						})();
+						});
 					});
 				};
 
