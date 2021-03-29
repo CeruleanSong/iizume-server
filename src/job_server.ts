@@ -134,7 +134,7 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 		await job_repo.save(new_job);
 		const job = queue.createJob(new_job);
 		job.save();
-		
+			
 		job.on('succeeded', async (_result) => {
 			new_job.status = JOB_STATUS.COMPLETED;
 			new_job.end_time = new Date();
@@ -153,6 +153,7 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 			console.log(`Job failed: ${_err}`);
 		});
 		
+		ctx.body = new_job.job_id;
 		ctx.status = 200;
 	}
 });
@@ -168,7 +169,7 @@ app.listen(config.job_server.port, () => {
  * finished
  ************************************************/
 
-queue.process((payload: any, done: Queue.DoneCallback<unknown>) => {
+queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
 	(async () => {
 		const timestamp = new Date();
 		const mongo = getConnection('mongo');
@@ -202,4 +203,9 @@ queue.process((payload: any, done: Queue.DoneCallback<unknown>) => {
 		return;
 	}
 	return done(Error('UNKNOWN_JOB'));
+});
+
+queue.checkStalledJobs(1000*60*30, (err, num) => {
+	// eslint-disable-next-line no-console
+	console.log(`checked stalled jobs, #${num} stalled`);
 });

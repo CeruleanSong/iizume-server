@@ -12,7 +12,6 @@ import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel,
 	SourceModel, TagModel } from './model/mysql';
 import { JobModel, TimeStampModel } from './model/mongo';
 
-
 import config from '../config/config.json';
 
 /************************************************

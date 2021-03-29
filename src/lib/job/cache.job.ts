@@ -1,8 +1,8 @@
 import { getConnection } from 'typeorm';
 
 import ModuleList from '../core/source/ModuleList';
+import { ChapterModel, MangaModel, MangaSourceModel, SourceModel } from '../../model/mysql';
 import { CompletedJob, Job } from './Job';
-import { MangaModel, MangaSourceModel, SourceModel } from '../../model/mysql';
 
 const modules = ModuleList;
 
@@ -55,9 +55,31 @@ export const cache_chapter_list = async (payload: Job, done: any): Promise<void>
 };
 
 export const cache_page_list = async (payload: Job, done: any): Promise<void> => {
-	const res: CompletedJob = { success: false };
-	res.success ? done(null, payload) : done(Error('JOB_FAILED'));
-	return;
+	const mysql = getConnection('mysql');
+	const chapter_repo = mysql.manager.getRepository(ChapterModel);
+	const source_and_chapter = (await chapter_repo.query(`
+		SELECT T3.*, title FROM
+		(select T2.*, source_id FROM
+		(SELECT T1.* FROM
+		(SELECT chapter_id, manga_id, origin FROM chapter
+		WHERE chapter_id = ?) AS T1
+		JOIN manga
+		ON T1.manga_id = manga.manga_id) AS T2
+		JOIN manga_source
+		ON T2.manga_id = manga_source.manga_id) AS T3
+		JOIN source
+		ON T3.source_id = source.source_id
+	`, [ payload.target ]))[0];
+	if(source_and_chapter) {
+		const success = await modules[source_and_chapter.title].cache_page_list(source_and_chapter);
+		if(success) {
+			return done(null, payload);
+		} else {
+			return done(null, 'JOB_FAILED');
+		}
+	} else {
+		return done(Error('UNKNOWN_SOURCE'));
+	}
 };
 
 export const cache_hot = async (payload: Job, done: any): Promise<void> => {

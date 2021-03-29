@@ -7,7 +7,7 @@ import { JOB_TYPE } from '../../../lib/job/Job';
 import { SourceModule } from './';
 import { SourceModuleConfig } from './SourceModule';
 import { ChapterModel, MangaModel, SourceModel } from '../../../model/mysql';
-import { save_chapter_list, save_manga, save_manga_list } from './SourceParser';
+import { save_chapter_list, save_manga, save_manga_list, save_page_list } from './SourceParser';
 
 const ModuleList: { [module: string]: SourceModule } = {};
 
@@ -104,15 +104,64 @@ export const load_modules = () => {
 					});
 				};
 
-				const cache_page_list = (_chapter: ChapterModel): Promise<boolean> => {
-					return new Promise((_res) => {
-						_res(false);
+				const cache_page_list = async (chapter: ChapterModel): Promise<boolean> => {
+					return await new Promise((resolve) => {
+						let output = '';
+						const cp = spawn('ruby', [
+							'./module/execute_module.rb',
+							title,
+							JOB_TYPE.CACHE_PAGE_LIST,
+							chapter.origin
+						]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_page_list(chapter.chapter_id, data)) {
+									resolve(true);
+								} else {
+									resolve(false);
+								}
+							} else {
+								resolve(true);
+							}
+						});
 					});
 				};
 
-				const cache_hot = (): Promise<boolean> => {
-					return new Promise((_res) => {
-						_res(false);
+				const cache_hot = async (): Promise<boolean> => {
+					return await new Promise((resolve) => {
+						let output = '';
+						const cp = spawn('ruby', [ './module/execute_module.rb', title, JOB_TYPE.CACHE_HOT ]);
+
+						cp.stdout.on('data', (data) => {
+							output+=data;
+						});
+
+						cp.on('error', () => {
+							resolve(false);
+						});
+
+						cp.on('close', async (code) => {
+							const data = JSON.parse(output);
+							if(code === 0 && source) {
+								if(await save_manga_list(source.source_id, data)) {
+									resolve(true);
+								} else {
+									resolve(false);
+								}
+							} else {
+								resolve(true);
+							}
+						});
 					});
 				};
 
