@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { MangaModel , SourceModel } from '.';
 
@@ -20,7 +20,7 @@ export default class MangaSource {
 	@JoinColumn({ name: 'manga_id', referencedColumnName: 'manga_id'  })
 	manga?: MangaModel;
 
-    @ManyToMany(() => SourceModel, source => source.source_id)
+    @ManyToOne(() => SourceModel, source => source.source_id)
 	@JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })
 	source?: SourceModel;
 }

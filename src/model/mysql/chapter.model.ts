@@ -1,11 +1,10 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToMany, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { MangaModel } from '.';
 
 @Entity()
-@Index([ 'chapter_id', 'manga_id' ])
+@Index([ 'origin' ])
 @Index([ 'chapter_id', 'chapter_number' ])
-@Index([ 'chapter_id', 'manga_id', 'chapter_number' ])
 export default class Chapter {
 	@PrimaryGeneratedColumn()
 	id!: number;
@@ -39,7 +38,7 @@ export default class Chapter {
 
 	/** RELATIONS */
 	
-    @OneToMany(() => MangaModel, manga => manga.manga_id)
+    @ManyToOne(() => MangaModel, manga => manga.manga_id)
 	@JoinColumn({ referencedColumnName: 'manga_id' })
 	manga!: MangaModel;
 }

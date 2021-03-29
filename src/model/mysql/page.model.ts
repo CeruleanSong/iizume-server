@@ -1,11 +1,10 @@
-import { Column, CreateDateColumn, Entity, Index, JoinColumn, OneToMany, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
 
 import { ChapterModel } from '.';
 
 @Entity()
-@Index([ 'origin', 'page_number' ])
-@Index([ 'page_id', 'chapter_id' ])
-@Index([ 'page_id', 'chapter_id', 'page_number' ])
+@Index([ 'chapter_id', 'page_id' ])
+@Index([ 'chapter_id', 'page_number' ])
 export default class Page {
 	@PrimaryGeneratedColumn()
 	id!: number;
@@ -33,7 +32,7 @@ export default class Page {
 
 	/** RELATIONS */
 	
-    @OneToMany(() => ChapterModel, chapter => chapter.chapter_id)
+    @ManyToOne(() => ChapterModel, chapter => chapter.chapter_id)
 	@JoinColumn({ referencedColumnName: 'chapter_id' })
 	chapter!: ChapterModel;
 }
