@@ -216,7 +216,6 @@ export const load_modules = () => {
 
 				const cache_all = async (): Promise<boolean> => {
 					return await new Promise((resolve) => {
-
 						let output = '';
 						const cp = spawn('ruby', [ './module/execute_module.rb', title, JOB_TYPE.CACHE_ALL ]);
 

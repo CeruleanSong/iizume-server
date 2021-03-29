@@ -135,24 +135,6 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 		const job = queue.createJob(new_job);
 		job.save();
 			
-		job.on('succeeded', async (_result) => {
-			new_job.status = JOB_STATUS.COMPLETED;
-			new_job.end_time = new Date();
-			job_repo.save(new_job);
-
-			// eslint-disable-next-line no-console
-			console.log(`finished job ${job.id}`);
-		});
-	
-		job.on('failed', async (_err) => {
-			new_job.status = JOB_STATUS.ERROR;
-			new_job.end_time = new Date();
-			job_repo.save(new_job);
-
-			// eslint-disable-next-line no-console
-			console.log(`Job failed: ${_err}`);
-		});
-		
 		ctx.body = new_job.job_id;
 		ctx.status = 200;
 	}
@@ -168,6 +150,38 @@ app.listen(config.job_server.port, () => {
 /************************************************
  * finished
  ************************************************/
+
+queue.on('succeeded', async (job) => {
+	const mongo = getConnection('mongo');
+	const job_repo = mongo.getRepository(JobModel);
+	const job_update = await mongo.getRepository(JobModel)
+		.findOne({ where: {
+			job_id: job.data.job_id
+		} });
+	if(job_update) {
+		job_update.status = JOB_STATUS.COMPLETED;
+		job_update.end_time = new Date();
+		job_repo.save(job_update);
+	}
+	// eslint-disable-next-line no-console
+	console.log(`finished job ${job.id}`);
+});
+
+queue.on('failed', async (job, err) => {
+	const mongo = getConnection('mongo');
+	const job_repo = mongo.getRepository(JobModel);
+	const job_update = await mongo.getRepository(JobModel)
+		.findOne({ where: {
+			job_id: job.data.job_id
+		} });
+	if(job_update) {
+		job_update.status = JOB_STATUS.ERROR;
+		job_update.end_time = new Date();
+		job_repo.save(job_update);
+	}
+	// eslint-disable-next-line no-console
+	console.log(`Job failed: ${err}`);
+});
 
 queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
 	(async () => {

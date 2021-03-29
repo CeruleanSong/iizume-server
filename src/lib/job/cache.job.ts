@@ -24,10 +24,10 @@ export const cache_manga = async (payload: Job, done: any): Promise<void> => {
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(null, 'JOB_FAILED');
+			return done(Error('JOB_FAILED'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'));
+		return done(Error('UNKNOWN_SOURCE'), payload);
 	}
 };
 
@@ -47,10 +47,10 @@ export const cache_chapter_list = async (payload: Job, done: any): Promise<void>
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(null, 'JOB_FAILED');
+			return done(Error('JOB_FAILED'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'));
+		return done(Error('UNKNOWN_SOURCE'), payload);
 	}
 };
 
@@ -75,10 +75,10 @@ export const cache_page_list = async (payload: Job, done: any): Promise<void> =>
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(null, 'JOB_FAILED');
+			return done(Error('JOB_FAILED'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'));
+		return done(Error('UNKNOWN_SOURCE'), payload);
 	}
 };
 
@@ -97,10 +97,10 @@ export const cache_latest = async (payload: Job, done: any): Promise<void> => {
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(null, 'JOB_FAILED');
+			return done(Error('JOB_FAILED'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'));
+		return done(Error('UNKNOWN_SOURCE'), payload);
 	}
 };
 
@@ -113,9 +113,9 @@ export const cache_all = async (payload: Job, done: any): Promise<void> => {
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(null, 'JOB_FAILED');
+			return done(Error('JOB_FAILED'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'));
+		return done(Error('UNKNOWN_SOURCE'), payload);
 	}
 };
