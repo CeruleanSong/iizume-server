@@ -1,0 +1,33 @@
+{
+	"port": 1111,
+	"production": false,
+	"db": {
+		"synchronize": false,
+		"mongo": {
+			"url": "localhost",
+			"port": 27017,
+			"schema": "test",
+			"authSource": "test",
+			"username": "test",
+			"password": "test"
+		},
+		"mysql": {
+			"url": "localhost",
+			"port": 3306,
+			"schema": "test",
+			"username": "test",
+			"password": "test"
+		}
+	},
+	"job_server": {
+		"port": 3071,
+		"concurrency": 15,
+		"queue": "test",
+		"redis": {
+			"host": "localhost",
+			"port": 18754,
+			"password": "test",
+			"db": 0
+		}
+	}
+}

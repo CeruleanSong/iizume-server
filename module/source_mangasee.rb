@@ -194,7 +194,7 @@ module Source
 	def self.read_directory(limit = 0, start = 1)
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 		browser.go_to("#{CONFIG['origin']}/directory")
-		sleep 4.0 # pause to load javascript
+		sleep 6.0 # pause to load javascript
 
 		manga_list = []
 

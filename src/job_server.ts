@@ -95,7 +95,6 @@ const router = new Router();
  ************************************************/
 
 const queue = new Queue(config.job_server.queue, {
-    	storeJobs: false,
 	redis: {
 		...config.job_server.redis
 	}
@@ -113,7 +112,6 @@ app.use(bodyParser());
 
 router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 	const mongo: Connection = ctx.mongo;
-	
 	const { value, error } = JobSchema.validate(ctx.request.body, {
 		abortEarly: false,
 		errors: { escapeHtml: true }
@@ -185,6 +183,8 @@ queue.on('failed', async (job, err) => {
 
 queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
 	(async () => {
+		// eslint-disable-next-line no-console
+		console.log(`starting job ${payload.data.job_id}/${payload.data.type} on: ${payload.data.target}`);
 		const mongo = getConnection('mongo');
 		const mongo_repo = mongo.manager.getMongoRepository(JobModel);
 		const db_job = await mongo_repo.findOne({ where: { job_id: payload.data.job_id } });

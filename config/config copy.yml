@@ -1,0 +1,4 @@
+---
+job_server:
+  url: localhost
+  port: 1112
