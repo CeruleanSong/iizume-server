@@ -1,6 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
 
 @Entity()
+@Index([ 'title' ])
+@Index([ 'title', 'enabled' ])
 export default class Source {
 	@PrimaryGeneratedColumn()
 	id!: number;

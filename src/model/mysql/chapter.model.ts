@@ -3,8 +3,8 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, Primary
 import { MangaModel } from '.';
 
 @Entity()
-@Index([ 'origin' ])
-@Index([ 'chapter_id', 'chapter_number' ])
+@Index([ 'manga_id', 'origin' ])
+@Index([ 'manga_id', 'chapter_number' ])
 export default class Chapter {
 	@PrimaryGeneratedColumn()
 	id!: number;
@@ -39,6 +39,6 @@ export default class Chapter {
 	/** RELATIONS */
 	
     @ManyToOne(() => MangaModel, manga => manga.manga_id)
-	@JoinColumn({ referencedColumnName: 'manga_id' })
+	@JoinColumn({ name: 'manga_id', referencedColumnName: 'manga_id' })
 	manga!: MangaModel;
 }

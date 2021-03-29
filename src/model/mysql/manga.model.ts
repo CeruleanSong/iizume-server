@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn,UpdateDateColumn } from 'typeorm';
 
 @Entity()
-@Index([ 'origin' ])
 @Index([ 'manga_id', 'title' ])
 @Index([ 'manga_id', 'origin' ])
 export default class Manga {

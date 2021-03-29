@@ -33,6 +33,6 @@ export default class Page {
 	/** RELATIONS */
 	
     @ManyToOne(() => ChapterModel, chapter => chapter.chapter_id)
-	@JoinColumn({ referencedColumnName: 'chapter_id' })
+	@JoinColumn({ name: 'chpater_id', referencedColumnName: 'chapter_id' })
 	chapter!: ChapterModel;
 }
