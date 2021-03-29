@@ -63,7 +63,7 @@ module Source
 				button.click();
 			}'
 		)
-		sleep 0.50 # pause to load javascript
+		sleep 1.5 # pause to load javascript
 
 		doc = Nokogiri::HTML(browser.body)
 		rows = doc.css('div.list-group a')
@@ -76,8 +76,8 @@ module Source
 			chapter_number = parse_chapter_number(scrape_chapter)
 
 			row = chapter.css('span')
-			if(row.length > 2)
-				frame = row[2].text.split(/ /)
+			if(row.length > 2 && (row[2].text.split(' ').length > 1))
+				frame = row[2].text.split(' ')
 				time = frame[2].split(':')
 				if(frame[3] === 'PM')
 					hour = 12 + Integer(time[0])
@@ -92,7 +92,11 @@ module Source
 					Integer(time[1])
 				)
 			elsif
-				scape_release = row[1].text.strip.split(/\//)
+				if(row.length > 2 )
+					scape_release = row[2].text.strip.split(/\//)
+				else
+					scape_release = row[1].text.strip.split(/\//)
+				end
 				chapter_release = Time.new(scape_release[2], scape_release[0], scape_release[1])
 			end
 			
@@ -105,6 +109,46 @@ module Source
 		puts JSON.pretty_generate(chapter_list)
 	end
 
+	def self.read_page_list(url)
+		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+		browser.go_to("#{CONFIG['origin']}#{url}")
+		sleep 0.25 # pause to load javascript
+
+		doc = Nokogiri::HTML(browser.body)
+		rows = doc.css('div.DesktopNav div button.btn')
+		view_type = rows[2].text.strip
+		if(view_type.include? 'Long')
+			browser.execute('
+				let button = document.getElementsByClassName(\'btn\')[5];
+				if(button) {
+					button.click();
+				}'
+			)
+			sleep 0.50 # pause to load javascript
+		end
+
+		doc = Nokogiri::HTML(browser.body)
+		rows = doc.css('div.ImageGallery div div img.img-fluid')
+		page_list = []
+		current_page_number = 1
+		for page in rows
+			page_origin = url.split('-page')[0]
+			page_origin = page_origin + '-page-' + String(current_page_number)
+
+			image_link = page['src'].strip
+
+			page_number = current_page_number
+			current_page_number+=1
+
+			page_list << {
+				origin: page_origin,
+				image_link: image_link,
+				page_number: page_number
+			}
+		end
+		puts JSON.pretty_generate(page_list)
+	end
+
 	def self.read_latest
 		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
 		browser.go_to(CONFIG['origin'])
@@ -113,7 +157,7 @@ module Source
 		for index in 0..7
 			browser.execute('document.getElementsByClassName(\'ViewMore\')[0].click()')
 		end
-		sleep 0.5 # pause to load javascript
+		sleep 1.5 # pause to load javascript
 
 		manga_list = []
 
@@ -207,7 +251,6 @@ module Source
 		string_n = release_string[0]
 		frame = release_string[1].split[0]
 		number = begin Integer(string_n) rescue false end
-		puts release_string
 		if number
 			if frame.include? "minute"
 				return Time.now - number
