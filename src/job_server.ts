@@ -94,7 +94,7 @@ const router = new Router();
  * services
  ************************************************/
 
-const queue = new Queue('h5w456h', {
+const queue = new Queue(config.job_server.queue, {
     	storeJobs: false,
 	redis: {
 		...config.job_server.redis
@@ -171,38 +171,37 @@ app.listen(config.job_server.port, () => {
 
 queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
 	(async () => {
-		const timestamp = new Date();
 		const mongo = getConnection('mongo');
 		const mongo_repo = mongo.manager.getMongoRepository(JobModel);
-		const db_job = await mongo_repo.findOne({ where: { job_id: payload.job_id } });
+		const db_job = await mongo_repo.findOne({ where: { job_id: payload.data.job_id } });
 		if(db_job) {
-			db_job.start_time = timestamp;
+			db_job.start_time = new Date();
 			db_job.status = JOB_STATUS.STARTED;
 			mongo_repo.save(db_job);
 		}
+		switch (payload.data.type)
+		{
+		case JOB_TYPE.CACHE_MANGA:
+			cache_manga(payload.data, done);
+			return;
+		case JOB_TYPE.CACHE_CHAPTER_LIST:
+			cache_chapter_list(payload.data, done);
+			return;
+		case JOB_TYPE.CACHE_PAGE_LIST:
+			cache_page_list(payload.data, done);
+			return;
+		case JOB_TYPE.CACHE_HOT:
+			cache_hot(payload.data, done);
+			return;
+		case JOB_TYPE.CACHE_LATEST:
+			cache_latest(payload.data, done);
+			return;
+		case JOB_TYPE.CACHE_ALL:
+			cache_all(payload.data, done);
+			return;
+		}
+		return done(Error('UNKNOWN_JOB'));
 	})();
-	switch (payload.data.type)
-	{
-	case JOB_TYPE.CACHE_MANGA:
-		cache_manga(payload.data, done);
-		return;
-	case JOB_TYPE.CACHE_CHAPTER_LIST:
-		cache_chapter_list(payload.data, done);
-		return;
-	case JOB_TYPE.CACHE_PAGE_LIST:
-		cache_page_list(payload.data, done);
-		return;
-	case JOB_TYPE.CACHE_HOT:
-		cache_hot(payload.data, done);
-		return;
-	case JOB_TYPE.CACHE_LATEST:
-		cache_latest(payload.data, done);
-		return;
-	case JOB_TYPE.CACHE_ALL:
-		cache_all(payload.data, done);
-		return;
-	}
-	return done(Error('UNKNOWN_JOB'));
 });
 
 queue.checkStalledJobs(1000*60*30, (err, num) => {

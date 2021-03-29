@@ -33,49 +33,6 @@ export const save_manga = async (manga_id: string, manga: MangaModel) => {
 	});
 };
 
-export const save_page_list = async (chapter_id: string, page_list: PageModel[]) => {
-	return new Promise<boolean>((resolve) => {
-		if(chapter_id && page_list.length > 0) {
-			const mysql = getConnection('mysql');
-			const page_repo = mysql.manager.getRepository(PageModel);
-
-			const page_insert: PageModel[] = [];
-
-			(async () => {
-				for(const i in page_list) {
-					await page_repo.findOne({ 
-						where: { 
-							chapter_id: chapter_id,
-							origin: page_list[i].origin
-						} 
-					}).then(async (db_page) => {
-						const page_id = db_page ? db_page.page_id : uid(16);
-						if(db_page) {
-							// do nothing
-						} else {
-							page_insert.push({
-								...new PageModel(),
-								...page_list[i],
-								chapter_id: chapter_id,
-								page_id: page_id
-							});
-						}
-					});
-				}
-				mysql.transaction(async (transaction) => {
-					await transaction.insert(PageModel, page_insert);
-				}).then(() => {
-					resolve(true);
-				}).catch(() => {
-					resolve(false);
-				});
-			})();
-		} else {
-			resolve(false);
-		}
-	});
-};
-
 export const save_chapter_list = async (manga_id: string, chapter_list: ChapterModel[]) => {
 	return new Promise<boolean>((resolve) => {
 		if(manga_id && chapter_list.length > 0) {
@@ -107,6 +64,49 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 				}
 				mysql.transaction(async (transaction) => {
 					await transaction.insert(ChapterModel, chapter_insert);
+				}).then(() => {
+					resolve(true);
+				}).catch(() => {
+					resolve(false);
+				});
+			})();
+		} else {
+			resolve(false);
+		}
+	});
+};
+
+export const save_page_list = async (chapter_id: string, page_list: PageModel[]) => {
+	return new Promise<boolean>((resolve) => {
+		if(chapter_id && page_list.length > 0) {
+			const mysql = getConnection('mysql');
+			const page_repo = mysql.manager.getRepository(PageModel);
+
+			const page_insert: PageModel[] = [];
+
+			(async () => {
+				for(const i in page_list) {
+					await page_repo.findOne({ 
+						where: { 
+							chapter_id: chapter_id,
+							origin: page_list[i].origin
+						} 
+					}).then(async (db_page) => {
+						const page_id = db_page ? db_page.page_id : uid(16);
+						if(db_page) {
+							// do nothing
+						} else {
+							page_insert.push({
+								...new PageModel(),
+								...page_list[i],
+								chapter_id: chapter_id,
+								page_id: page_id
+							});
+						}
+					});
+				}
+				mysql.transaction(async (transaction) => {
+					await transaction.insert(PageModel, page_insert);
 				}).then(() => {
 					resolve(true);
 				}).catch(() => {
