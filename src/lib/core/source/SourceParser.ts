@@ -1,11 +1,11 @@
 import { getConnection } from 'typeorm';
 import { uid } from 'uid/secure';
 
-import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel, TagModel } from '../../../model/mysql';
+import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel, TagModel } from '../../../model/mariadb';
 
 export const save_manga = async (manga_id: string, manga: MangaModel) => {
 	return new Promise<boolean>((resolve) => {
-		const mysql = getConnection('mysql');
+		const mariadb = getConnection('mariadb');
 		const update_payload = {
 			...new MangaModel(),
 			cover: manga.cover,
@@ -20,7 +20,7 @@ export const save_manga = async (manga_id: string, manga: MangaModel) => {
 			release_date: manga.release_date
 		};
 		(async () => {
-			mysql.transaction(async (transaction) => {
+			mariadb.transaction(async (transaction) => {
 				await transaction.update(MangaModel, {
 					manga_id: manga_id
 				}, update_payload);
@@ -36,8 +36,8 @@ export const save_manga = async (manga_id: string, manga: MangaModel) => {
 export const save_chapter_list = async (manga_id: string, chapter_list: ChapterModel[]) => {
 	return new Promise<boolean>((resolve) => {
 		if(manga_id && chapter_list.length > 0) {
-			const mysql = getConnection('mysql');
-			const chapter_repo = mysql.manager.getRepository(ChapterModel);
+			const mariadb = getConnection('mariadb');
+			const chapter_repo = mariadb.manager.getRepository(ChapterModel);
 
 			const chapter_insert: ChapterModel[] = [];
 
@@ -62,7 +62,7 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 						}
 					});
 				}
-				mysql.transaction(async (transaction) => {
+				mariadb.transaction(async (transaction) => {
 					await transaction.insert(ChapterModel, chapter_insert);
 				}).then(() => {
 					resolve(true);
@@ -79,8 +79,8 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 export const save_page_list = async (chapter_id: string, page_list: PageModel[]) => {
 	return new Promise<boolean>((resolve) => {
 		if(chapter_id && page_list.length > 0) {
-			const mysql = getConnection('mysql');
-			const page_repo = mysql.manager.getRepository(PageModel);
+			const mariadb = getConnection('mariadb');
+			const page_repo = mariadb.manager.getRepository(PageModel);
 
 			const page_insert: PageModel[] = [];
 
@@ -105,7 +105,7 @@ export const save_page_list = async (chapter_id: string, page_list: PageModel[])
 						}
 					});
 				}
-				mysql.transaction(async (transaction) => {
+				mariadb.transaction(async (transaction) => {
 					await transaction.insert(PageModel, page_insert);
 				}).then(() => {
 					resolve(true);
@@ -122,9 +122,9 @@ export const save_page_list = async (chapter_id: string, page_list: PageModel[])
 export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 	return new Promise<boolean>((res) => {
 		if(manga_id && tag_list.length > 0) {
-			const mysql = getConnection('mysql');
-			const tag_repo = mysql.manager.getRepository(TagModel);
-			const manga_tag_repo = mysql.manager.getRepository(MangaTagModel);
+			const mariadb = getConnection('mariadb');
+			const tag_repo = mariadb.manager.getRepository(TagModel);
+			const manga_tag_repo = mariadb.manager.getRepository(MangaTagModel);
 
 			const manga_tag_insert: MangaTagModel[] = [];
 			const tag_insert: TagModel[] = [];
@@ -161,7 +161,7 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 							});
 						});
 				}
-				mysql.transaction(async (transaction) => {
+				mariadb.transaction(async (transaction) => {
 					await transaction.save(MangaTagModel, manga_tag_insert);
 					await transaction.save(TagModel, tag_insert);
 				}).then(() => {
@@ -179,9 +179,9 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 export const save_manga_list = async (source_id: string, manga_list: MangaModel[]) => {
 	return new Promise<boolean>((resolve) => {
 		if(source_id && manga_list.length > 0) {
-			const mysql = getConnection('mysql');
-			const manga_repo = mysql.manager.getRepository(MangaModel);
-			const manga_source_repo = mysql.manager.getRepository(MangaSourceModel);
+			const mariadb = getConnection('mariadb');
+			const manga_repo = mariadb.manager.getRepository(MangaModel);
+			const manga_source_repo = mariadb.manager.getRepository(MangaSourceModel);
 
 			const manga_source_insert: MangaSourceModel[] = [];
 			const manga_insert: MangaModel[] = [];
@@ -238,7 +238,7 @@ export const save_manga_list = async (source_id: string, manga_list: MangaModel[
 						}
 					});
 				}
-				await mysql.transaction(async (transaction) => {
+				await mariadb.transaction(async (transaction) => {
 					await transaction.insert(MangaModel, manga_insert);
 					await transaction.insert(MangaSourceModel, manga_source_insert);
 				}).then(async () => {

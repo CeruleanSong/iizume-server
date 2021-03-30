@@ -1,4 +1,4 @@
-import { ChapterModel, MangaModel } from 'model/mysql';
+import { ChapterModel, MangaModel } from '../../../model/mariadb';
 export interface SourceModuleConfig {
 	origin: string;
 	title: string;

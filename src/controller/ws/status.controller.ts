@@ -10,7 +10,7 @@ const router: Router = new Router();
  ************************************************/
 
 router.get([ '/:job_id' ], async (ctx: ParameterizedContext) => {
-	// const db: Connection = _ctx.mysql;
+	// const db: Connection = _ctx.mariadb;
 	ctx.body = 'hello world!';
 });
 

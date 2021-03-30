@@ -6,14 +6,14 @@ import { exec, spawn } from 'child_process';
 import { JOB_TYPE } from '../../../lib/job/Job';
 import { SourceModule } from './';
 import { SourceModuleConfig } from './SourceModule';
-import { ChapterModel, MangaModel, SourceModel } from '../../../model/mysql';
+import { ChapterModel, MangaModel, SourceModel } from '../../../model/mariadb';
 import { save_chapter_list, save_manga, save_manga_list, save_page_list } from './SourceParser';
 
 const ModuleList: { [module: string]: SourceModule } = {};
 
 export const load_modules = () => {
-	const mysql = getConnection('mysql');
-	const source_repo = mysql.manager.getRepository(SourceModel);
+	const mariadb = getConnection('mariadb');
+	const source_repo = mariadb.manager.getRepository(SourceModel);
 	exec('ls ./module/source_*.rb', (err, stdout) => {
 		stdout.split('\n').forEach(async (file) => {
 			if(file.length > 0) {

@@ -1,15 +1,15 @@
 import { getConnection } from 'typeorm';
 
 import ModuleList from '../core/source/ModuleList';
-import { ChapterModel, MangaModel, MangaSourceModel, SourceModel } from '../../model/mysql';
+import { ChapterModel, MangaModel, MangaSourceModel, SourceModel } from '../../model/mariadb';
 import { CompletedJob, Job } from './Job';
 
 const modules = ModuleList;
 
 export const cache_manga = async (payload: Job, done: any): Promise<void> => {
-	const mysql = getConnection('mysql');
-	const manga_repo = mysql.manager.getRepository(MangaModel);
-	const manga_source_repo = mysql.manager.getRepository(MangaSourceModel);
+	const mariadb = getConnection('mariadb');
+	const manga_repo = mariadb.manager.getRepository(MangaModel);
+	const manga_source_repo = mariadb.manager.getRepository(MangaSourceModel);
 	const source = (await manga_source_repo.query(`
 		SELECT T1.*, title FROM
 		(SELECT source_id, manga_id FROM manga_source
@@ -32,8 +32,8 @@ export const cache_manga = async (payload: Job, done: any): Promise<void> => {
 };
 
 export const cache_chapter_list = async (payload: Job, done: any): Promise<void> => {
-	const mysql = getConnection('mysql');
-	const manga_repo = mysql.manager.getRepository(MangaModel);
+	const mariadb = getConnection('mariadb');
+	const manga_repo = mariadb.manager.getRepository(MangaModel);
 	const source = (await manga_repo.query(`
 		SELECT T1.*, title FROM
 		(SELECT source_id, manga_id FROM manga_source
@@ -55,8 +55,8 @@ export const cache_chapter_list = async (payload: Job, done: any): Promise<void>
 };
 
 export const cache_page_list = async (payload: Job, done: any): Promise<void> => {
-	const mysql = getConnection('mysql');
-	const chapter_repo = mysql.manager.getRepository(ChapterModel);
+	const mariadb = getConnection('mariadb');
+	const chapter_repo = mariadb.manager.getRepository(ChapterModel);
 	const source_and_chapter = (await chapter_repo.query(`
 		SELECT T3.*, title FROM
 		(select T2.*, source_id FROM
@@ -89,8 +89,8 @@ export const cache_hot = async (payload: Job, done: any): Promise<void> => {
 };
 
 export const cache_latest = async (payload: Job, done: any): Promise<void> => {
-	const mysql = getConnection('mysql');
-	const source_repo = mysql.manager.getRepository(SourceModel);
+	const mariadb = getConnection('mariadb');
+	const source_repo = mariadb.manager.getRepository(SourceModel);
 	const source = await source_repo.findOne({ where: { source_id: payload.target } });
 	if(source) {
 		const success = await modules[source.title].cache_latest();
@@ -105,8 +105,8 @@ export const cache_latest = async (payload: Job, done: any): Promise<void> => {
 };
 
 export const cache_all = async (payload: Job, done: any): Promise<void> => {
-	const mysql = getConnection('mysql');
-	const source_repo = mysql.manager.getRepository(SourceModel);
+	const mariadb = getConnection('mariadb');
+	const source_repo = mariadb.manager.getRepository(SourceModel);
 	const source = await source_repo.findOne({ where: { source_id: payload.target } });
 	if(source) {
 		const success = await modules[source.title].cache_all();

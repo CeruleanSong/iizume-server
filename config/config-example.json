@@ -11,7 +11,7 @@
 			"username": "test",
 			"password": "test"
 		},
-		"mysql": {
+		"mariadb": {
 			"url": "localhost",
 			"port": 3306,
 			"schema": "test",

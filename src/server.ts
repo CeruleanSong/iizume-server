@@ -9,7 +9,7 @@ import { createConnection } from 'typeorm';
 import { load_modules } from './lib/core/source/ModuleList';
 import { Api, WS } from './controller';
 import { ChapterModel, MangaModel, MangaSourceModel, MangaTagModel, PageModel,
-	SourceModel, TagModel } from './model/mysql';
+	SourceModel, TagModel } from './model/mariadb';
 import { JobModel, TimeStampModel } from './model/mongo';
 
 import config from '../config/config.json';
@@ -58,17 +58,17 @@ const socket_router = new Router();
 	});
 })();
 
-/**** mysql *****/
+/**** mariadb *****/
 
 (async () => {
 	createConnection({
-		type: 'mysql',
-		name: 'mysql',
-		host: config.db.mysql.url,
-		port: config.db.mysql.port,
-		username: config.db.mysql.username,
-		password: config.db.mysql.password,
-		database: config.db.mysql.schema,
+		type: 'mariadb',
+		name: 'mariadb',
+		host: config.db.mariadb.url,
+		port: config.db.mariadb.port,
+		username: config.db.mariadb.username,
+		password: config.db.mariadb.password,
+		database: config.db.mariadb.schema,
 		entities: [
 			ChapterModel,
 			MangaSourceModel,
@@ -80,9 +80,9 @@ const socket_router = new Router();
 		],
 		synchronize: config.db.synchronize
 	}).then((connection) => {
-		(app.context as any).mysql = connection;
+		(app.context as any).mariadb = connection;
 		// eslint-disable-next-line no-console
-		console.log('connected to database: mysql');
+		console.log('connected to database: mariadb');
 		load_modules();
 	}).catch((error) => {
 		// eslint-disable-next-line no-console
