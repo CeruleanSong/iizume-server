@@ -178,7 +178,7 @@ queue.on('failed', async (job, err) => {
 		job_repo.save(job_update);
 	}
 	// eslint-disable-next-line no-console
-	console.log(`Job failed: ${err}`);
+	console.log(`Job failed: ${job.id}, ${err}`);
 });
 
 queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {

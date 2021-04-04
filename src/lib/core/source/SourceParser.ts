@@ -24,7 +24,6 @@ export const save_manga = async (manga_id: string, manga: MangaModel) => {
 				await transaction.update(MangaModel, {
 					manga_id: manga_id
 				}, update_payload);
-			}).then(() => {
 				resolve(true);
 			}).catch(() => {
 				resolve(false);
@@ -64,7 +63,6 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 				}
 				mariadb.transaction(async (transaction) => {
 					await transaction.insert(ChapterModel, chapter_insert);
-				}).then(() => {
 					resolve(true);
 				}).catch(() => {
 					resolve(false);
@@ -120,7 +118,7 @@ export const save_page_list = async (chapter_id: string, page_list: PageModel[])
 };
 
 export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
-	return new Promise<boolean>((res) => {
+	return new Promise<boolean>((resolve) => {
 		if(manga_id && tag_list.length > 0) {
 			const mariadb = getConnection('mariadb');
 			const tag_repo = mariadb.manager.getRepository(TagModel);
@@ -164,14 +162,13 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 				mariadb.transaction(async (transaction) => {
 					await transaction.save(MangaTagModel, manga_tag_insert);
 					await transaction.save(TagModel, tag_insert);
-				}).then(() => {
-					res(true);
+					resolve(true);
 				}).catch(() => {
-					res(false);
+					resolve(false);
 				});
 			})();
 		} else {
-			res(false);
+			resolve(false);
 		}
 	});
 };
@@ -241,7 +238,6 @@ export const save_manga_list = async (source_id: string, manga_list: MangaModel[
 				await mariadb.transaction(async (transaction) => {
 					await transaction.insert(MangaModel, manga_insert);
 					await transaction.insert(MangaSourceModel, manga_source_insert);
-				}).then(async () => {
 					for(const i in manga_chapter_list) {
 						await save_chapter_list(manga_chapter_list[i].manga_id, manga_chapter_list[i].chapters);
 					}

@@ -58,7 +58,6 @@ export const load_modules = () => {
 
 						cp.on('close', async (code) => {
 							try {
-
 								const data = JSON.parse(output);
 								if(code === 0 && source) {
 									if(await save_manga(manga.manga_id, data)) {
