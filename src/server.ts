@@ -120,7 +120,12 @@ app.use(Body({
 
 	{ /* api */
 		const api: Router = new Router();
-		router.use('/api', api.routes());
+
+		api.use([
+			'/job',
+			'/j'
+		],
+		Api.JobController.routes());
 
 		api.use([
 			'/manga',
@@ -128,6 +133,24 @@ app.use(Body({
 		],
 		Api.MangaController.routes());
 		
+		api.use([
+			'/chapter',
+			'/c'
+		],
+		Api.ChapterController.routes());
+		
+		api.use([
+			'/source',
+			'/sc'
+		],
+		Api.SourceController.routes());
+
+		api.use([
+			'/search',
+			'/s'
+		],
+		Api.SearchController.routes());
+
 		router.use('/api', api.routes());
 	}
 
