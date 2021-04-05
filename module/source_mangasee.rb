@@ -44,7 +44,7 @@ module Source
 			author: manga_author,
 			artist: manga_artist,
 			status_origin: manga_status_scan,
-			status_scan: manga_status_scan,
+			status_scanlation: manga_status_scan,
 			type: manga_type,
 			description: manga_description,
 			release_date: manga_released,
@@ -227,7 +227,7 @@ module Source
 				origin: manga_origin,
 				title: manga_title,
 				cover: manga_cover,
-				status_scan: manga_status,
+				status_scanlation: manga_status,
 				tags: manga_tag_list,
 			}
 			manga_list << manga_payload
