@@ -161,9 +161,10 @@ app.use(Body({
 
 	{
 		socket_router.use([
-			'/'
+			'/job',
+			'/j'
 		],
-		WS.StatusController.routes());
+		WS.JobController.routes());
 	}
 
 	app.ws.use(socket_router.routes() as any);

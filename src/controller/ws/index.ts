@@ -1,5 +1,5 @@
-import StatusController from './status.controller';
+import JobController from './job.controller';
 
 export {
-	StatusController
+	JobController
 };
