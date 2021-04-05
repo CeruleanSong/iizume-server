@@ -79,11 +79,11 @@ const socket_router = new Router();
 			TagModel
 		],
 		synchronize: config.db.synchronize
-	}).then((connection) => {
+	}).then(async (connection) => {
 		(app.context as any).mariadb = connection;
 		// eslint-disable-next-line no-console
 		console.log('connected to database: mariadb');
-		load_modules();
+		await load_modules();
 	}).catch((error) => {
 		// eslint-disable-next-line no-console
 		console.log(error);
