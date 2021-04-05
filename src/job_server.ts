@@ -150,76 +150,94 @@ app.listen(config.job_server.port, () => {
  * finished
  ************************************************/
 
-queue.on('succeeded', async (job) => {
-	const mongo = getConnection('mongo');
-	const job_repo = mongo.getRepository(JobModel);
-	const job_update = await mongo.getRepository(JobModel)
-		.findOne({ where: {
-			job_id: job.data.job_id
-		} });
-	if(job_update) {
-		job_update.status = JOB_STATUS.COMPLETED;
-		job_update.end_time = new Date();
-		job_repo.save(job_update);
-	}
-	// eslint-disable-next-line no-console
-	console.log(`finished job ${job.id}`);
-});
-
-queue.on('failed', async (job, err) => {
-	const mongo = getConnection('mongo');
-	const job_repo = mongo.getRepository(JobModel);
-	const job_update = await mongo.getRepository(JobModel)
-		.findOne({ where: {
-			job_id: job.data.job_id
-		} });
-	if(job_update) {
-		job_update.status = JOB_STATUS.ERROR;
-		job_update.end_time = new Date();
-		job_repo.save(job_update);
-	}
-	// eslint-disable-next-line no-console
-	console.log(`Job failed: ${job.id}, ${err}`);
-});
-
-queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
-	(async () => {
-		// eslint-disable-next-line no-console
-		console.log(`starting job ${payload.data.job_id}/${payload.data.type} on: ${payload.data.target}`);
+setTimeout(() => {
+	queue.on('succeeded', async (job) => {
 		const mongo = getConnection('mongo');
-		const mongo_repo = mongo.manager.getMongoRepository(JobModel);
-		const db_job = await mongo_repo.findOne({ where: { job_id: payload.data.job_id } });
-		if(db_job) {
-			db_job.start_time = new Date();
-			db_job.status = JOB_STATUS.STARTED;
-			mongo_repo.save(db_job);
+		const job_repo = mongo.getRepository(JobModel);
+		const job_update = await mongo.getRepository(JobModel)
+			.findOne({ where: {
+				job_id: job.data.job_id
+			} });
+		if(job_update) {
+			job_update.status = JOB_STATUS.COMPLETED;
+			job_update.end_time = new Date();
+			job_repo.save(job_update);
 		}
-		switch (payload.data.type)
-		{
-		case JOB_TYPE.CACHE_MANGA:
-			cache_manga(payload.data, done);
-			return;
-		case JOB_TYPE.CACHE_CHAPTER_LIST:
-			cache_chapter_list(payload.data, done);
-			return;
-		case JOB_TYPE.CACHE_PAGE_LIST:
-			cache_page_list(payload.data, done);
-			return;
-		case JOB_TYPE.CACHE_HOT:
-			cache_hot(payload.data, done);
-			return;
-		case JOB_TYPE.CACHE_LATEST:
-			cache_latest(payload.data, done);
-			return;
-		case JOB_TYPE.CACHE_ALL:
-			cache_all(payload.data, done);
-			return;
-		}
-		return done(Error('UNKNOWN_JOB'));
-	})();
-});
+		// eslint-disable-next-line no-console
+		console.log(`finished job ${job.id}`);
+	});
 
-queue.checkStalledJobs(1000*60*30, (err, num) => {
-	// eslint-disable-next-line no-console
-	console.log(`checked stalled jobs, #${num} stalled`);
-});
+	queue.on('failed', async (job, err) => {
+		const mongo = getConnection('mongo');
+		const job_repo = mongo.getRepository(JobModel);
+		const job_update = await mongo.getRepository(JobModel)
+			.findOne({ where: {
+				job_id: job.data.job_id
+			} });
+		if(job_update) {
+			job_update.status = JOB_STATUS.ERROR;
+			job_update.end_time = new Date();
+			job_repo.save(job_update);
+		}
+		// eslint-disable-next-line no-console
+		console.log(`Job failed: ${job.id}, ${err}`);
+	});
+
+	queue.on('retrying', async (job, err) => {
+		const mongo = getConnection('mongo');
+		const job_repo = mongo.getRepository(JobModel);
+		const job_update = await mongo.getRepository(JobModel)
+			.findOne({ where: {
+				job_id: job.data.job_id
+			} });
+		if(job_update) {
+			job_update.status = JOB_STATUS.ERROR;
+			job_update.end_time = new Date();
+			job_repo.save(job_update);
+		}
+		// eslint-disable-next-line no-console
+		console.log(`Job failed: ${job.id}, ${err}`);
+	});
+
+	queue.process(config.job_server.concurrency, (payload: any, done: Queue.DoneCallback<unknown>) => {
+		(async () => {
+			// eslint-disable-next-line no-console
+			console.log(`starting job ${payload.data.job_id}/${payload.data.type} on: ${payload.data.target}`);
+			const mongo = getConnection('mongo');
+			const mongo_repo = mongo.manager.getMongoRepository(JobModel);
+			const db_job = await mongo_repo.findOne({ where: { job_id: payload.data.job_id } });
+			if(db_job) {
+				db_job.start_time = new Date();
+				db_job.status = JOB_STATUS.STARTED;
+				mongo_repo.save(db_job);
+			}
+			switch (payload.data.type)
+			{
+			case JOB_TYPE.CACHE_MANGA:
+				cache_manga(payload.data, done);
+				return;
+			case JOB_TYPE.CACHE_CHAPTER_LIST:
+				cache_chapter_list(payload.data, done);
+				return;
+			case JOB_TYPE.CACHE_PAGE_LIST:
+				cache_page_list(payload.data, done);
+				return;
+			case JOB_TYPE.CACHE_HOT:
+				cache_hot(payload.data, done);
+				return;
+			case JOB_TYPE.CACHE_LATEST:
+				cache_latest(payload.data, done);
+				return;
+			case JOB_TYPE.CACHE_ALL:
+				cache_all(payload.data, done);
+				return;
+			}
+			return done(Error('UNKNOWN_JOB'));
+		})();
+	});
+
+	queue.checkStalledJobs(1000*60*30, (err, num) => {
+		// eslint-disable-next-line no-console
+		console.log(`checked stalled jobs, ${num} stalled`);
+	});
+}, 2000);
