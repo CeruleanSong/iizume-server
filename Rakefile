@@ -9,7 +9,6 @@ task :test do
 end
 
 namespace :db do
-
 	desc "Configure rom rake support"
 	task :migrate do
 		require_relative 'db/db_connection'
