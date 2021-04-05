@@ -3,7 +3,7 @@ import path from 'path';
 import { uid } from 'uid/secure';
 import { exec, spawn } from 'child_process';
 
-import { JOB_TYPE } from '../../../lib/job/Job';
+import { JOB_TYPE } from './Job';
 import { SourceModule } from './';
 import { SourceModuleConfig } from './SourceModule';
 import { ChapterModel, MangaModel, SourceModel } from '../../../model/mariadb';

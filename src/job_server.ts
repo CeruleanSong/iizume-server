@@ -12,9 +12,9 @@ import { JobModel, TimeStampModel } from './model/mongo';
 import { HttpStatus } from './lib/types';
 import { JobSchema } from './schema';
 import { load_modules } from './lib/core/source/ModuleList';
-import { JOB_STATUS, JOB_TYPE } from './lib/job/Job';
+import { JOB_STATUS, JOB_TYPE } from './lib/core/source/Job';
 import { cache_all, cache_chapter_list, cache_hot, cache_latest, cache_manga,
-	cache_page_list } from './lib/job/cache.job';
+	cache_page_list } from './lib/core/source/SourceJob';
 
 import config from '../config/config.json';
 
@@ -133,6 +133,7 @@ router.all([ '/', '/j', '/job' ], async (ctx: ParameterizedContext) => {
 		const job = queue.createJob(new_job);
 		job.save();
 			
+		// return job_id, for querying status
 		ctx.body = new_job.job_id;
 		ctx.status = 200;
 	}

@@ -20,31 +20,30 @@ export const save_manga = async (manga_id: string, manga: MangaModel) => {
 			release_date: manga.release_date
 		};
 		(async () => {
-			mariadb.transaction(async (transaction) => {
+			await mariadb.transaction(async (transaction) => {
 				await transaction.update(MangaModel, {
 					manga_id: manga_id
 				}, update_payload);
-				resolve(true);
 			}).catch(() => {
-				resolve(false);
+				return resolve(false);
 			});
+			return resolve(true);
 		})();
 	});
 };
 
 export const save_chapter_list = async (manga_id: string, chapter_list: ChapterModel[]) => {
 	return new Promise<boolean>((resolve) => {
-		if(manga_id && chapter_list.length > 0) {
+		if(manga_id && chapter_list && chapter_list.length > 0) {
 			const mariadb = getConnection('mariadb');
 			const chapter_repo = mariadb.manager.getRepository(ChapterModel);
 
-			const chapter_insert: ChapterModel[] = [];
+			const new_chapter_insert: ChapterModel[] = [];
 
 			(async () => {
 				for(const i in chapter_list) {
 					await chapter_repo.findOne({ 
 						where: { 
-							manga_id: manga_id,
 							origin: chapter_list[i].origin
 						} 
 					}).then(async (db_chapter) => {
@@ -52,31 +51,32 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 						if(db_chapter) {
 							// do nothing
 						} else {
-							chapter_insert.push({
+							const new_chapter = {
 								...new ChapterModel(),
 								...chapter_list[i],
 								chapter_id: chapter_id,
 								manga_id: manga_id
-							});
+							};
+							new_chapter_insert.push(new_chapter);
 						}
 					});
 				}
-				mariadb.transaction(async (transaction) => {
-					await transaction.insert(ChapterModel, chapter_insert);
-					resolve(true);
+				await mariadb.transaction(async (transaction) => {
+					await transaction.insert(ChapterModel, new_chapter_insert);
 				}).catch(() => {
-					resolve(false);
+					return resolve(false);
 				});
+				return resolve(true);
 			})();
 		} else {
-			resolve(false);
+			return resolve(false);
 		}
 	});
 };
 
 export const save_page_list = async (chapter_id: string, page_list: PageModel[]) => {
 	return new Promise<boolean>((resolve) => {
-		if(chapter_id && page_list.length > 0) {
+		if(chapter_id && page_list && page_list.length > 0) {
 			const mariadb = getConnection('mariadb');
 			const page_repo = mariadb.manager.getRepository(PageModel);
 
@@ -86,7 +86,6 @@ export const save_page_list = async (chapter_id: string, page_list: PageModel[])
 				for(const i in page_list) {
 					await page_repo.findOne({ 
 						where: { 
-							chapter_id: chapter_id,
 							origin: page_list[i].origin
 						} 
 					}).then(async (db_page) => {
@@ -94,38 +93,39 @@ export const save_page_list = async (chapter_id: string, page_list: PageModel[])
 						if(db_page) {
 							// do nothing
 						} else {
-							page_insert.push({
+							const new_page = {
 								...new PageModel(),
 								...page_list[i],
 								chapter_id: chapter_id,
 								page_id: page_id
-							});
+
+							};
+							page_insert.push(new_page);
 						}
 					});
 				}
-				mariadb.transaction(async (transaction) => {
+				await mariadb.transaction(async (transaction) => {
 					await transaction.insert(PageModel, page_insert);
-				}).then(() => {
-					resolve(true);
 				}).catch(() => {
-					resolve(false);
+					return resolve(false);
 				});
+				return resolve(true);
 			})();
 		} else {
-			resolve(false);
+			return resolve(false);
 		}
 	});
 };
 
 export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 	return new Promise<boolean>((resolve) => {
-		if(manga_id && tag_list.length > 0) {
+		if(manga_id && tag_list && tag_list.length > 0) {
 			const mariadb = getConnection('mariadb');
 			const tag_repo = mariadb.manager.getRepository(TagModel);
 			const manga_tag_repo = mariadb.manager.getRepository(MangaTagModel);
 
-			const manga_tag_insert: MangaTagModel[] = [];
-			const tag_insert: TagModel[] = [];
+			const new_tag_insert: TagModel[] = [];
+			const new_manga_tag_insert: MangaTagModel[] = [];
 			
 			(async () => {
 				for(const i in tag_list) {
@@ -135,11 +135,12 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 							if(db_tag) {
 								// do nothing
 							} else {
-								tag_insert.push({
+								const new_tag = {
 									...new TagModel(),
 									tag_id: tag_id,
 									title: tag_list[i]
-								});
+								};
+								new_tag_insert.push(new_tag);
 							}
 							await manga_tag_repo.findOne({
 								where: {
@@ -150,35 +151,35 @@ export const save_tag_list = async (manga_id: string, tag_list: string[]) => {
 								if(db_manga_tag) {
 									// do nothing
 								} else {
-									manga_tag_insert.push({
+									const new_manga_tag = {
 										...new MangaTagModel(),
 										tag_id: tag_id,
 										manga_id: manga_id
-									});
+									};
+									new_manga_tag_insert.push(new_manga_tag);
 								}
 							});
 						});
 				}
-				mariadb.transaction(async (transaction) => {
-					await transaction.save(MangaTagModel, manga_tag_insert);
-					await transaction.save(TagModel, tag_insert);
-					resolve(true);
+				await mariadb.transaction(async (transaction) => {
+					await transaction.save(TagModel, new_tag_insert);
+					await transaction.save(MangaTagModel, new_manga_tag_insert);
 				}).catch(() => {
-					resolve(false);
+					return resolve(false);
 				});
+				return resolve(true);
 			})();
 		} else {
-			resolve(false);
+			return resolve(false);
 		}
 	});
 };
 
 export const save_manga_list = async (source_id: string, manga_list: MangaModel[]) => {
 	return new Promise<boolean>((resolve) => {
-		if(source_id && manga_list.length > 0) {
+		if(source_id && manga_list && manga_list.length > 0) {
 			const mariadb = getConnection('mariadb');
 			const manga_repo = mariadb.manager.getRepository(MangaModel);
-			const manga_source_repo = mariadb.manager.getRepository(MangaSourceModel);
 
 			const manga_source_insert: MangaSourceModel[] = [];
 			const manga_insert: MangaModel[] = [];
@@ -200,37 +201,28 @@ export const save_manga_list = async (source_id: string, manga_list: MangaModel[
 							const new_manga = {
 								...new MangaModel(),
 								...manga_list[i],
-								manga_id
+								manga_id: manga_id
 							};
 							manga_insert.push(new_manga);
-							await manga_source_repo.findOne({
-								where: {
-									manga_id: manga_id
-								}
-							}).then((db_manga_source) => {
-								if(db_manga_source) {
-									// do nothing
-								} else {
-									manga_source_insert.push({
-										...new MangaSourceModel(),
-										source_id,
-										manga_id
-									});
-								}
-							});
+							const new_manga_source = {
+								...new MangaSourceModel(),
+								source_id: source_id,
+								manga_id: manga_id
+							};
+							manga_source_insert.push(new_manga_source);
 						}
-						const tags: string[] = (manga_list[i] as any).tags;
-						if(tags) {
+						const new_tags: string[] = (manga_list[i] as any).tags;
+						if(new_tags) {
 							manga_tag_list.push({
-								manga_id,
-								tags
+								manga_id: manga_id,
+								tags: new_tags
 							});
 						}
-						const chapters: ChapterModel[] = (manga_list[i] as any).chapters;
-						if(chapters) {
+						const new_chapters: ChapterModel[] = (manga_list[i] as any).chapters;
+						if(new_chapters) {
 							manga_chapter_list.push({
-								manga_id,
-								chapters
+								manga_id: manga_id,
+								chapters: new_chapters
 							});
 						}
 					});
@@ -238,19 +230,20 @@ export const save_manga_list = async (source_id: string, manga_list: MangaModel[
 				await mariadb.transaction(async (transaction) => {
 					await transaction.insert(MangaModel, manga_insert);
 					await transaction.insert(MangaSourceModel, manga_source_insert);
+				}).then(async () => {
 					for(const i in manga_chapter_list) {
 						await save_chapter_list(manga_chapter_list[i].manga_id, manga_chapter_list[i].chapters);
 					}
 					for(const i in manga_tag_list) {
 						await save_tag_list(manga_tag_list[i].manga_id, manga_tag_list[i].tags);
 					}
-					resolve(true);
 				}).catch(() => {
-					resolve(false);
+					return resolve(false);
 				});
+				return resolve(true);
 			})();
 		} else {
-			resolve(false);
+			return resolve(false);
 		}
 	});
 };

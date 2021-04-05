@@ -4,7 +4,7 @@ import Router from 'koa-router';
 import fetch from 'node-fetch';
 
 import { HttpStatus } from '../../lib/types';
-import { JOB_TYPE } from '../../lib/job/Job';
+import { JOB_TYPE } from '../../lib/core/source/Job';
 import { MangaModel } from '../../model/mariadb';
 import config from '../../../config/config.json';
 
@@ -23,7 +23,6 @@ router.get([ '/:manga_id' ], async (ctx: ParameterizedContext) => {
 	
 	if(manga) {
 		ctx.body = manga;
-		console.log(new Date(manga.update_date));
 		if(!manga.full_sync) {
 			const form = new URLSearchParams();
 			form.append('type', JOB_TYPE.CACHE_MANGA);

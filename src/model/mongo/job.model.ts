@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, ObjectIdColumn } from 'typeorm';
 
-import { JOB_STATUS, JOB_TYPE } from '../../lib/job/Job';
+import { JOB_STATUS, JOB_TYPE } from '../../lib/core/source/Job';
 
 @Entity()
 @Index([ 'job_id', 'type' ], { unique: true })

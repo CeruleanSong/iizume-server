@@ -1,7 +1,7 @@
 import { getConnection } from 'typeorm';
 
-import ModuleList from '../core/source/ModuleList';
-import { ChapterModel, MangaModel, MangaSourceModel, SourceModel } from '../../model/mariadb';
+import ModuleList from './ModuleList';
+import { ChapterModel, MangaModel, MangaSourceModel, SourceModel } from '../../../model/mariadb';
 import { CompletedJob, Job } from './Job';
 
 const modules = ModuleList;
@@ -18,16 +18,15 @@ export const cache_manga = async (payload: Job, done: any): Promise<void> => {
 		ON T1.source_id = source.source_id
 	`, [ payload.target ]))[0];
 	const manga = await manga_repo.findOne({ where: { manga_id: payload.target } });
-
 	if(source && manga) {
 		const success = await modules[source.title].cache_manga(manga);
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(Error('JOB_FAILED'), payload);
+			return done(Error('UNKNOWN_FAILURE'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'), payload);
+		return done(Error('UNKNOWN_MANGA'), payload);
 	}
 };
 
@@ -47,10 +46,10 @@ export const cache_chapter_list = async (payload: Job, done: any): Promise<void>
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(Error('JOB_FAILED'), payload);
+			return done(Error('UNKNOWN_FAILURE'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'), payload);
+		return done(Error('UNKNOWN_MANGA'), payload);
 	}
 };
 
@@ -75,10 +74,10 @@ export const cache_page_list = async (payload: Job, done: any): Promise<void> =>
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(Error('JOB_FAILED'), payload);
+			return done(Error('UNKNOWN_FAILURE'), payload);
 		}
 	} else {
-		return done(Error('UNKNOWN_SOURCE'), payload);
+		return done(Error('UNKNOWN_CHAPTER'), payload);
 	}
 };
 
@@ -97,7 +96,7 @@ export const cache_latest = async (payload: Job, done: any): Promise<void> => {
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(Error('JOB_FAILED'), payload);
+			return done(Error('UNKNOWN_FAILURE'), payload);
 		}
 	} else {
 		return done(Error('UNKNOWN_SOURCE'), payload);
@@ -113,7 +112,7 @@ export const cache_all = async (payload: Job, done: any): Promise<void> => {
 		if(success) {
 			return done(null, payload);
 		} else {
-			return done(Error('JOB_FAILED'), payload);
+			return done(Error('UNKNOWN_FAILURE'), payload);
 		}
 	} else {
 		return done(Error('UNKNOWN_SOURCE'), payload);
