@@ -17,8 +17,13 @@ jobs:
     steps:
       - checkout
       - ruby/install-deps
-      - run: npm install
-      - run: npm test
+      - run: gem install nokogiri ferrum
+      - run: sudo apt update
+      - run: sudo apt update
+      - run: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      - run: sudo apt install ./google-chrome-stable_current_amd64.deb
+      - run: yarn install
+      - run: yarn test
 
 workflows:
   version: 2
