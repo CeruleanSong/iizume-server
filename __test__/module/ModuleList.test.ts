@@ -34,7 +34,6 @@ describe('parse modules', () => {
 			const title = path.basename(file).split('.')[0].split('_')[1];
 			const module = module_list[i];
 			expect(title).toEqual(module.title);
-			
 		}
 	});
 });

@@ -11,7 +11,7 @@ describe(`test module, ${modulename}`, () => {
 		const result = await execute_job(
 			modulename,
 			JOB_TYPE.CACHE_MANGA,
-			'/manga/The-Irregular-of-the-Royal-Academy-of-Magic'
+			manga_origin
 		);
 		expect(result).toBeTruthy();
 	});
