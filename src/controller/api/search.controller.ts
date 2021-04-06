@@ -1,6 +1,7 @@
 import { Connection } from 'typeorm';
 import { ParameterizedContext } from 'koa';
 import Router from 'koa-router';
+import fetch from 'node-fetch';
 
 import { HttpStatus } from '../../lib/types';
 import { JOB_TYPE } from '../../lib/core/source/Job';
@@ -16,7 +17,7 @@ const router: Router = new Router();
 
 const Controller: Router = router;
 
-router.get([ '/latest' ], async (ctx: ParameterizedContext) => {
+router.all([ '/latest' ], async (ctx: ParameterizedContext) => {
 	const body = ctx.request.body;
 	const db: Connection = ctx.mariadb;
 
@@ -39,26 +40,10 @@ router.get([ '/latest' ], async (ctx: ParameterizedContext) => {
 			ORDER BY T1.release_date DESC, T1.update_date DESC
 			LIMIT ?, ?
 		`,[ value.limit*(value.page - 1), value.limit ]);
-		ctx.body = {
-			manga: manga_list
-		};
 		if(manga_list) {
-			const expire_time = 1000*60*30; // 30 minutes
-			const update_time = new Date(manga_list[0].update_date).getTime();
-			const current_time = new Date().getTime();
-			const form = new URLSearchParams();
-			if((current_time - update_time) > expire_time) {
-				form.append('type', JOB_TYPE.CACHE_CHAPTER_LIST);
-				form.append('target', ctx.params.manga_id);
-				const res = await fetch(`${config.job_server.url}:${config.job_server.port}/job`, {
-					method: 'post',
-					body: form
-				});
-				ctx.body = {
-					job_id: await res.text(),
-					manga: manga_list
-				};
-			}
+			ctx.body = {
+				manga: manga_list
+			};
 		} else {
 			ctx.status = HttpStatus.CLIENT_ERROR.NOT_FOUND.status;
 			ctx.body = HttpStatus.CLIENT_ERROR.NOT_FOUND.message;
@@ -66,7 +51,7 @@ router.get([ '/latest' ], async (ctx: ParameterizedContext) => {
 	}
 });
 
-router.get([ '/latest/:source_id' ], async (ctx: ParameterizedContext) => {
+router.all([ '/latest/:source_id' ], async (ctx: ParameterizedContext) => {
 	const body = ctx.request.body;
 	const db: Connection = ctx.mariadb;
 
@@ -101,8 +86,8 @@ router.get([ '/latest/:source_id' ], async (ctx: ParameterizedContext) => {
 			const current_time = new Date().getTime();
 			const form = new URLSearchParams();
 			if((current_time - update_time) > expire_time) {
-				form.append('type', JOB_TYPE.CACHE_CHAPTER_LIST);
-				form.append('target', ctx.params.manga_id);
+				form.append('type', JOB_TYPE.CACHE_LATEST);
+				form.append('target', ctx.params.source_id);
 				const res = await fetch(`${config.job_server.url}:${config.job_server.port}/job`, {
 					method: 'post',
 					body: form
