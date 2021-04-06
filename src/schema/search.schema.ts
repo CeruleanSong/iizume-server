@@ -24,7 +24,7 @@ const SearchSchema = object({
 
 	limit: joi.number()
 		.greater(0)
-		.default(15)
+		.default(30)
 		.optional()
 });
 
