@@ -79,19 +79,24 @@ module Source
 			if(row.length > 2 && (row[2].text.split(' ').length > 1))
 				frame = row[2].text.split(' ')
 				time = frame[2].split(':')
-				if(frame[3] === 'PM')
-					hour = 12 + Integer(time[0])
-				else
-					hour = 12 + Integer(time[0])
+				if(frame[2] === 'ago')
+					hour = Integer(frame[0])
+					chapter_release = Time.now - (hour*(60*60))
+				else 
+					if(frame[3] === 'PM')
+						hour = 12 + Integer(time[0])
+					else
+						hour = 12 + Integer(time[0])
+					end
+					chapter_release = Time.new(
+						Time.now.year,
+						Time.now.month,
+						Time.now.day - 1,
+						hour,
+						Integer(time[1])
+					)
 				end
-				chapter_release = Time.new(
-					Time.now.year,
-					Time.now.month,
-					Time.now.day - 1,
-					hour,
-					Integer(time[1])
-				)
-			elsif
+			else
 				if(row.length > 2 )
 					scape_release = row[2].text.strip.split(/\//)
 				else
@@ -147,6 +152,49 @@ module Source
 			}
 		end
 		puts JSON.pretty_generate(page_list)
+	end
+
+	def self.read_hot
+		browser = Ferrum::Browser.new({timeout: 20, window_size: [400, 800]})
+		browser.go_to("#{CONFIG['origin']}/hot.php")
+		sleep 0.25 # pause to load javascript
+
+		manga_list = []
+
+		doc = Nokogiri::HTML(browser.body)
+		row = doc.css('div.HotUpdateMobile div.row a')
+
+		for item in row
+			# manga_origin = item.css('div.Image a')[0]['href'].strip
+			manga_cover = item.css('div.Image img')[0]['src'].strip
+			manga_title = item.css('div.Label div.SeriesName span').text.strip
+
+			scrape_chapter = item.css('div.Label .ChapterLabel').text.strip
+			scrape_chapter_release = item.css('div.Label .DateLabel').text.strip
+			chapter_origin = item['href'].strip
+
+			browser.go_to("#{CONFIG['origin']}#{chapter_origin}")
+			sleep 0.05 # pause to load javascript
+
+			chapter_doc = Nokogiri::HTML(browser.body)
+			manga_origin = chapter_doc.css('div.MainContainer div.row div a')[0]['href'].strip
+
+			chapter_number = parse_chapter_number(scrape_chapter)
+			chapter_release = parse_chapter_release(scrape_chapter_release)
+
+			manga_payload = {
+				cover: manga_cover,
+				title: manga_title,
+				origin: manga_origin,
+				chapters: [
+					origin: chapter_origin,
+					chapter_number: chapter_number,
+					release_date: chapter_release,
+				]
+			}
+			manga_list << manga_payload
+		end
+		puts JSON.pretty_generate(manga_list)
 	end
 
 	def self.read_latest
