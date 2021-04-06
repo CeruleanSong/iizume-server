@@ -1,4 +1,6 @@
 node_modules/
+dist/
+build/
 config.json
 config.yml
 module/logs/

@@ -9,6 +9,9 @@
   "private": true,
   "scripts": {
     "test": "jest",
+    "build": "tsc && cp build/src/* build/ -r",
+	"start:main": "node build/server.js",
+	"start:jobs": "node build/job_server.js",
     "type-check": "tsc --pretty --noEmit",
     "lint": "eslint . --ext ts,tsx,js,json",
     "watch:main": "nodemon --watch './**/*' -e ts,js,json --exec ts-node ./src/server.ts",
@@ -49,6 +52,7 @@
     "@types/koa__router": "^8.0.4",
     "@types/node": "^14.14.36",
     "@types/node-fetch": "^2.5.8",
+    "@types/redis": "^2.8.28",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-cli": "^6.26.0",
