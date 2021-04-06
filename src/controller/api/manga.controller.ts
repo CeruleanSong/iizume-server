@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import { HttpStatus } from '../../lib/types';
 import { JOB_TYPE } from '../../lib/core/source/Job';
 import { MangaModel } from '../../model/mariadb';
+
 import config from '../../../config/config.json';
 
 // import { Connection } from 'typeorm';

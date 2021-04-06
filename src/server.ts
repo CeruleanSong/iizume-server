@@ -109,7 +109,8 @@ app.use(KoaJSON({ pretty: false, param: 'pretty' }));
 
 app.use(Body({
 	multipart: true,
-	urlencoded: true
+	urlencoded: true,
+	parsedMethods: [ 'POST', 'GET', 'PUT', 'PATCH' ]
 }));
 
 /************************************************
