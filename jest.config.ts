@@ -4,7 +4,7 @@ import type { Config } from '@jest/types';
 const config: Config.InitialOptions = {
 	preset: 'ts-jest',
 	testEnvironment: 'node',
-	moduleFileExtensions: [ 'ts', 'js', 'json', 'node' ],   
+	moduleFileExtensions: [ 'ts', 'js', 'json', 'node' ],
 	roots: [
 		  '__test__/'
 	],

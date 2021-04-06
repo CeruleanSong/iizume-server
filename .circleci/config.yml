@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   ruby: circleci/ruby@1.1.2
-  node: circleci/node@2
+  node: circleci/node@2.0.2
 
 jobs:
   build:
@@ -10,24 +10,25 @@ jobs:
     steps:
       - checkout
       - ruby/install-deps
+      - run: npm install
   test:
-    parallelism: 3
     docker:
-      - image: cimg/ruby:2.7-node
+      - image: cimg/ruby:2.7.2-node
     steps:
       - checkout
       - ruby/install-deps
-      - run:
-          name: Run tests
-          command: rake test
-      - ruby/rspec-test
-      # [TODO] - ruby/rubocop-check
+      - run: gem install nokogiri ferrum
+      - run: sudo apt update
+      - run: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      - run: sudo apt install ./google-chrome-stable_current_amd64.deb
+      - run: yarn install
+      - run: yarn test
 
 workflows:
   version: 2
-  build_and_test:
+  build:
     jobs:
       - build
-      - test:
-          requires:
-            - build
+  test:
+    jobs:
+      - test

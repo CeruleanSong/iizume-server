@@ -38,7 +38,8 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 			const mariadb = getConnection('mariadb');
 			const chapter_repo = mariadb.manager.getRepository(ChapterModel);
 
-			const new_chapter_insert: ChapterModel[] = [];
+			const chapter_update: ChapterModel[] = [];
+			const chapter_insert: ChapterModel[] = [];
 
 			(async () => {
 				for(const i in chapter_list) {
@@ -49,20 +50,32 @@ export const save_chapter_list = async (manga_id: string, chapter_list: ChapterM
 					}).then(async (db_chapter) => {
 						const chapter_id = db_chapter ? db_chapter.chapter_id : uid(16);
 						if(db_chapter) {
-							// do nothing
+							const chapter_payload = {
+								...chapter_list[i],
+								chapter_id: chapter_id,
+								manga_id: manga_id
+							};
+							chapter_update.push(chapter_payload);
 						} else {
-							const new_chapter = {
+							const chapter_payload = {
 								...new ChapterModel(),
 								...chapter_list[i],
 								chapter_id: chapter_id,
 								manga_id: manga_id
 							};
-							new_chapter_insert.push(new_chapter);
+							chapter_insert.push(chapter_payload);
 						}
 					});
 				}
 				await mariadb.transaction(async (transaction) => {
-					await transaction.insert(ChapterModel, new_chapter_insert);
+					await transaction.insert(ChapterModel, chapter_insert);
+					for(const i in chapter_update) {
+						await transaction.update(
+							ChapterModel,
+							{ chapter_id: chapter_update[i].chapter_id }, 
+							chapter_update[i]
+						);
+					}
 				}).catch(() => {
 					return resolve(false);
 				});
