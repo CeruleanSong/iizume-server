@@ -11,6 +11,7 @@ jobs:
       - checkout
       - ruby/install-deps
       - run: npm install
+      - run: yarn build
   test:
     docker:
       - image: cimg/ruby:2.7.2-node
