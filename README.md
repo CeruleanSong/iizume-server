@@ -6,7 +6,7 @@
 
 **free and open source API for browsing and downloading manga.**
 
-![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me?label=master&style=flat-square)
+![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me/master?label=master&style=flat-square)
 ![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me/dev?label=dev&style=flat-square)
 ![Codacy coverage](https://img.shields.io/codacy/coverage/3fcc1ed5d7c84dc8a8ebc1ffe9ca56d6?style=flat-square)
 [![GitHub issues](https://img.shields.io/github/issues/songmawa/iizu.me?style=flat-square)](https://github.com/songmawa/iizu.me/issues)
@@ -20,37 +20,35 @@
 ### Dependancies
 
 - [ruby](https://www.ruby-lang.org/en/) >= 2.7.0
-- [golang](https://golang.org/) >= 1.14.0
+- [nodejs](https://nodejs.org/) >= 12.18.4
+- [chrome](https://www.google.com/chrome/) >= 89
 #### Tools
-- [rake](https://ruby.github.io/rake/) >= 13.0.0
-- [bundler](https://bundler.io/) >= 2.2.0
-- [rspec](https://rspec.info/) >= 3.0.0
+- [yarn](https://classic.yarnpkg.com/) >= 1.22.10
 #### Other
 - [MySQL](https://www.mysql.com/) or [MariaDB](https://mariadb.org/)
 ### Installing
 
 #### 1. Download required libraries.
 ```sh
-# Install all ruby libraries using `bundler`:
-bundle install
-
-# Install all golang libraries using `go install`:
-go install
+# Install all ruby libraries`:
+gem install nokogiri ferrum
+# Install all node libraries`:
+yarn install
 ```
 
 #### 2. Configure database connection (MySQL or MariaDB).
-Create a file `db_config.yml` in the `db` directory. Complete it using `db/db_config_example.yml` as an example.
+Create a file `config.json` in the `db` directory. Complete it using `db/config-example.json` as an example.
 ```sh
 # create db configuration
-touch db/db_config.yml
+touch db/config.json
 # edit db configuration
-vim db/db_config.yml
+vim db/config.json
 ```
 
 ### Building
-#### 1. Build all golang scripts
+#### 1. Transpile typescript
 ```sh
-# TODO
+yarn build
 ```
 
 ### Running
@@ -60,17 +58,18 @@ vim db/db_config.yml
 # TODO
 ```
 
-#### 2. Run the application using the rake task or with bundler
+#### 2. Start servers
 ```sh
-rake
-# or
-bundle exec puma -p ${PORT:-3000}
+yarn start:main
+yarn start:jobs
 ```
 
 ### Testing
 Test the application using the rake task
 ```sh
-rake test
+yarn jest
+# or
+yarn test
 ```
 
 ## Documentation
