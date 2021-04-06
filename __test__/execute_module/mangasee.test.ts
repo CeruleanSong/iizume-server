@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 import { JOB_TYPE } from '../../src/lib/core/source/Job';
 import { execute_job } from '../../src/lib/core/source/ModuleList';
 
@@ -36,21 +37,21 @@ describe(`test module, ${modulename}`, () => {
 		expect(result.length).toBeGreaterThan(0);
 	});
 
-	test(`${JOB_TYPE.CACHE_HOT}, ${modulename}`, async () => {
-		const result = await execute_job(modulename, JOB_TYPE.CACHE_HOT);
-		expect(result).toBeTruthy();
-		expect(result.length).toBeGreaterThan(0);
-	});
+	// test(`${JOB_TYPE.CACHE_HOT}, ${modulename}`, async () => {
+	// 	const result = await execute_job(modulename, JOB_TYPE.CACHE_HOT);
+	// 	expect(result).toBeTruthy();
+	// 	expect(result.length).toBeGreaterThan(0);
+	// });
 
-	test(`${JOB_TYPE.CACHE_LATEST}, ${modulename}`, async () => {
-		const result = await execute_job(modulename, JOB_TYPE.CACHE_LATEST);
-		expect(result).toBeTruthy();
-		expect(result.length).toBeGreaterThan(0);
-	});
+	// test(`${JOB_TYPE.CACHE_LATEST}, ${modulename}`, async () => {
+	// 	const result = await execute_job(modulename, JOB_TYPE.CACHE_LATEST);
+	// 	expect(result).toBeTruthy();
+	// 	expect(result.length).toBeGreaterThan(0);
+	// });
 
-	test(`${JOB_TYPE.CACHE_ALL}, ${modulename}`, async () => {
-		const result = await execute_job(modulename, JOB_TYPE.CACHE_ALL);
-		expect(result).toBeTruthy();
-		expect(result.length).toBeGreaterThan(0);
-	});
+	// test(`${JOB_TYPE.CACHE_ALL}, ${modulename}`, async () => {
+	// 	const result = await execute_job(modulename, JOB_TYPE.CACHE_ALL);
+	// 	expect(result).toBeTruthy();
+	// 	expect(result.length).toBeGreaterThan(0);
+	// });
 });
