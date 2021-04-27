@@ -119,6 +119,12 @@ app.use(Body({
 
 { /* HTTP */
 
+	const root: Router = new Router();
+	root.all('\\', (ctx) => {
+		ctx.body = 'read the api decumentation here: https://github.com/songmawa/iizume/wiki';
+	});
+	app.use(root.routes());
+
 	{ /* api */
 		const api: Router = new Router();
 
