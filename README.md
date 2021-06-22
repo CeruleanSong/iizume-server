@@ -6,12 +6,12 @@
 
 **free and open source API for browsing and downloading manga.**
 
-![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me/master?label=master&style=flat-square)
-![CircleCI](https://img.shields.io/circleci/build/github/songmawa/iizu.me/dev?label=dev&style=flat-square)
+![CircleCI](https://img.shields.io/circleci/build/github/ottxrgxist/iizume/master?label=master&style=flat-square)
+![CircleCI](https://img.shields.io/circleci/build/github/ottxrgxist/iizume/dev?label=dev&style=flat-square)
 ![Codacy coverage](https://img.shields.io/codacy/coverage/3fcc1ed5d7c84dc8a8ebc1ffe9ca56d6?style=flat-square)
-[![GitHub issues](https://img.shields.io/github/issues/songmawa/iizu.me?style=flat-square)](https://github.com/songmawa/iizu.me/issues)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/songmawa/iizu.me?style=flat-square)
-[![GitHub license](https://img.shields.io/github/license/songmawa/iizu.me?style=flat-square)](https://github.com/songmawa/iizu.me/blob/master/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/ottxrgxist/iizume?style=flat-square)](https://github.com/ottxrgxist/iizume/issues)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/songmawa/iizume?style=flat-square)
+[![GitHub license](https://img.shields.io/github/license/ottxrgxist/iizume?style=flat-square)](https://github.com/ottxrgxist/iizume/blob/master/LICENSE)
 
 </div>
 
